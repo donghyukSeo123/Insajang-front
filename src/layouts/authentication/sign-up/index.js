@@ -24,8 +24,13 @@ function Cover() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSent, setIsSent] = useState(false); // 메일 발송 여부
+  const [isVerified, setIsVerified] = useState(false); // 메일인증 여부
   const [timeLeft, setTimeLeft] = useState(180); // 3분 (180초)
-  
+  const [email, setEmail] = useState(""); // 이메일 입력값 상태
+  const [name, setName] = useState(""); // 이름
+  const [nickname, setNickname] = useState(""); // 이름
+  const [authCode, setAuthCode] = useState(""); // 인증코드 입력상태
+
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;// 비밀번호 형식이 맞는지 (8자 이상, 영문/숫자)
   const isPasswordValid = passwordRegex.test(password);
   const isPasswordFormatValid = passwordRegex.test(password); // 형식 통과 여부
@@ -36,13 +41,13 @@ function Cover() {
   const confirmError = !isConfirmEmpty && (!isPasswordSame || !isPasswordFormatValid); //일치여부에러
   const confirmSuccess = !isConfirmEmpty && isPasswordSame && isPasswordFormatValid; //비밀번호사용가능여부
 
-  const [email, setEmail] = useState(""); // 이메일 입력값 상태
+  
   
   // 비밀번호 확인 칸 에러 여부 (비어있지 않은데 형식이 틀렸거나, 서로 다를 때)
   const isError = (password !== "" && !isPasswordValid) || 
                   (confirmPassword !== "" && password !== confirmPassword);
   // 모든 조건 충족 (형식도 맞고, 두 값도 일치함)
-  const isMatch = isPasswordValid && password !== "" && password === confirmPassword;
+  const isMatch = isPasswordValid && password !== "" && password === confirmPassword && isVerified;
   
   // 타이머 로직
   useEffect(() => {
@@ -63,30 +68,92 @@ function Cover() {
     return `${m}:${s < 10 ? `0${s}` : s}`;
   };
   
+  //인증메일발송
   const handleSendMail = async () => {
-  if (!email) {
-    alert("이메일을 입력해주세요!");
-    return;
-  }
-
-  try {
-
-    const response = await API.post("/api/user/email-verification", {
-      email: email 
-    });
-    
-
-
-    if (response.status === 200) {
-      setIsSent(true);
-      setTimeLeft(180);
-      alert("인증번호가 발송되었습니다. 메일함을 확인해주세요!");
+    if (!email) {
+      alert("이메일을 입력해주세요!");
+      return;
     }
-  } catch (error) {
-    console.error("메일 발송 실패:", error);
-    alert("메일 발송에 실패했습니다. 이메일 주소를 확인하거나 잠시 후 다시 시도해주세요.");
-  }
-};
+
+    try {
+
+      const response = await API.post("/api/user/email-verification", {
+        email: email 
+      });
+      
+
+
+      if (response.status === 200) {
+        setIsSent(true);
+        setTimeLeft(180);
+        alert("인증번호가 발송되었습니다. 메일함을 확인해주세요!");
+      }
+    } catch (error) {
+      console.error("메일 발송 실패:", error);
+      alert("메일 발송에 실패했습니다. 이메일 주소를 확인하거나 잠시 후 다시 시도해주세요.");
+    }
+  };
+  
+  //인증코드 확인
+  const handleSendAuthCode = async () => {
+    if (!authCode) {
+      alert("인증번호를 입력해주세요.");
+      return;
+    }
+
+    try {
+      const response = await API.post("/api/user/email-confirmation", {
+        email: email, // state에 저장된 이메일
+        code: authCode, // 사용자가 입력한 인증번호
+      });
+
+      if (response.status === 200) {
+        alert("인증에 성공했습니다!");
+        setIsVerified(true); 
+      }
+    } catch (error) {
+      console.error("인증 실패:", error);
+      alert(error.response?.data || "인증번호가 틀렸거나 만료되었습니다.");
+    }
+  };
+
+    //회원정보 제출(회원가입)
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // 
+
+      // 1. 유효성 검사 (Validation)
+      if (!name.trim() || name.length > 13) {
+        alert("이름은 비어있을 수 없으며 13자 이하로 입력해주세요.");
+        return;
+      }
+      
+      if (!nickname.trim() || nickname.length > 13) {
+        alert("닉네임은 비어있을 수 없으며 13자 이하로 입력해주세요.");
+        return;
+      }
+
+      // 폼 데이터 준비 (DB 컬럼 기반)
+      const signUpData = {
+        email: email,
+        password: password, 
+        nickname: nickname,
+        name: name,          
+        role: "USER"        
+      };
+      
+      console.log(signUpData);
+      
+      try {
+        const response = await API.post("/api/user/join", signUpData);
+        
+        if (response.status === 200) {
+          alert("회원가입을 축하드립니다 로그인페이지로 이동됩니다!");
+          navigate("/authentication/sign-in"); // 가입 후 로그인 페이지로 비동기 이동
+        }
+      } catch (error) {
+        alert("가입 실패: " + (error.response?.data || "서버 에러"));
+      }
+  };
 
   
 
@@ -155,6 +222,38 @@ function Cover() {
               </MDBox>
             </MDBox>
             
+            {isSent && (
+                <MDBox display="flex" alignItems="center" gap={1} mb={2}>
+                  <MDInput
+                    type="text"
+                    label="인증번호 입력"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    value={authCode}
+                    disabled={isVerified}
+                    onChange={(e) => setAuthCode(e.target.value)} 
+                    //onChange={(e) => setVerificationCode(e.target.value)}
+                  />
+                  <MDButton 
+                    variant="gradient"
+                    color="success"
+                    size="small"
+                    onClick={handleSendAuthCode}
+                    disabled={isVerified}
+                    sx={{ 
+                      mt: 1, 
+                      whiteSpace: "nowrap", 
+                      minWidth: "auto", // 혹은 "fit-content"
+                      px: 2 // 좌우 패딩을 살짝 조절해서 글자가 꽉 차지 않게 함
+                    }}
+                    
+                    //onClick={handleVerifyCode} // 확인 함수
+                  >
+                    인증확인
+                  </MDButton>
+                </MDBox>
+              )}
 
             <MDBox mb={2}>
               <MDInput
@@ -201,19 +300,34 @@ function Cover() {
             <MDBox mb={2}>
               <MDInput
                 type="email"
-                label="닉네임"
+                label="이름"
                 variant="outlined"
                 size="small"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 fullWidth
               />
             </MDBox>
 
+            <MDBox mb={2}>
+              <MDInput
+                type="email"
+                label="닉네임"
+                variant="outlined"
+                size="small"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                fullWidth
+              />
+            </MDBox>
+            
             <MDBox mt={4} mb={1}>
               <MDButton 
                 variant="gradient" 
                 color="info" 
                 fullWidth
                 disabled={!isMatch} // 일치할 때만 버튼 활성화
+                onClick={handleSubmit}
               >
                 회원가입
               </MDButton>
