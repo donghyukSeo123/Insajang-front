@@ -57,7 +57,7 @@ import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 
 export default function App() {
-  const isAuthenticated = !!localStorage.getItem("accessToken");
+  
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -72,6 +72,21 @@ export default function App() {
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+  // 1. 이제 'user' 대신 진짜 입장권인 'accessToken'이 있는지 확인합니다.
+  const token = localStorage.getItem("accessToken");
+  
+  if (token) {
+    // 토큰이 있다면 "오케이, 통과!"
+    setIsAuthenticated(true);
+  } else {
+    // 토큰이 없다면 "안돼, 돌아가!"
+    setIsAuthenticated(false);
+  }
+}, []); // 앱이 처음 켜질 때 딱 한 번 실행
 
   // Cache for the rtl
   useMemo(() => {
@@ -154,7 +169,7 @@ export default function App() {
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
 
-      {/* 로그인 상태일 때만 사이드바 */}
+      {/* 1. 로그인 상태일 때만 사이드바 노출 */}
       {isAuthenticated && (
         <>
           <Sidenav
@@ -169,15 +184,24 @@ export default function App() {
       )}
 
       <Routes>
-        {/* 로그인 페이지 */}
-        <Route path="/login" element={<LoginPage />} />
-        {/* 회원가입페이지 */}
-        <Route path="/signup" element={<SignupPage />} />
-        {/* 로그인한 사용자만 접근 */}
-        {isAuthenticated && getRoutes(routes)}
-
-        {/* 나머지는 전부 로그인으로 */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* 2. 로그인 안 된 상태라면 무조건 로그인/회원가입만 가능 */}
+        {!isAuthenticated ? (
+          <>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            {/* 로그인 안 됐는데 다른 데로 가려 하면 로그인으로 튕기기 */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </>
+        ) : (
+          <>
+            {/* 3. 로그인 된 상태라면 모든 대시보드 루트 열기 */}
+            {getRoutes(routes)}
+            {/* 로그인 된 상태에서 /login으로 오면 대시보드(첫페이지)로 보내기 */}
+            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+            {/* 그 외 이상한 주소는 대시보드로 */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </>
+        )}
       </Routes>
     </ThemeProvider>
   );

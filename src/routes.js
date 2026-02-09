@@ -36,11 +36,29 @@ Coded by www.creative-tim.com
  */
 
 // Material Dashboard 2 React layouts
+import { useEffect } from "react";
 import Dashboard from "layouts/dashboard";
 import Tables from "layouts/tables";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
+
+const Logout = () => {
+  useEffect(() => {
+
+    const isConfirmed = window.confirm("정말 로그아웃하시겠습니까?");
+    
+    if (isConfirmed) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userName");
+      window.location.href = "/login";
+    } else {
+      window.history.back();
+    }
+  }, []);
+
+  return null; // 화면은 안 보여줘도 되니까요!
+};
 
 const routes = [
   {
@@ -58,6 +76,14 @@ const routes = [
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/tables",
     component: <Tables />,
+  },
+  {
+    type: "collapse",
+    name: "로그아웃",
+    key: "sign-out",
+    icon: <Icon fontSize="small">logout</Icon>,
+    route: "/authentication/sign-out", 
+    component: <Logout />, 
   },
   // {
   //   type: "collapse",

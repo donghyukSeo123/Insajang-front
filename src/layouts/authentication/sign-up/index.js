@@ -1,7 +1,7 @@
 import { useState, useEffect} from "react"; // 
 
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -21,10 +21,13 @@ import bgImage from "assets/images/bg-sign-up-cover.jpeg";
 
 function Cover() {
 
+  const navigate = useNavigate();
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSent, setIsSent] = useState(false); // 메일 발송 여부
   const [isVerified, setIsVerified] = useState(false); // 메일인증 여부
+  const [isNicknameAvailable, setIsNicknameAvailable] = useState({message: "", color: "error"}); // 메일인증 여부
   const [timeLeft, setTimeLeft] = useState(180); // 3분 (180초)
   const [email, setEmail] = useState(""); // 이메일 입력값 상태
   const [name, setName] = useState(""); // 이름
@@ -47,7 +50,7 @@ function Cover() {
   const isError = (password !== "" && !isPasswordValid) || 
                   (confirmPassword !== "" && password !== confirmPassword);
   // 모든 조건 충족 (형식도 맞고, 두 값도 일치함)
-  const isMatch = isPasswordValid && password !== "" && password === confirmPassword && isVerified;
+  const isMatch = isPasswordValid && password !== "" && password === confirmPassword && isVerified && isNicknameAvailable.color === "success"; 
   
   // 타이머 로직
   useEffect(() => {
@@ -60,6 +63,42 @@ function Cover() {
       setIsSent(false); // 시간 다 되면 다시 발송 가능하게 상태 변경
     }
   }, [isSent, timeLeft]);
+
+  // 1. 디바운싱 로직: 입력 후 500ms 대기
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (nickname.length >= 2) {
+        checkNicknameAvailability(nickname);
+      } else {
+        setIsNicknameAvailable({ message: "닉네임은 2글자이상 입력해주세요", color: "error" });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer); // 타이머 초기화 (연타 방지)
+  }, [nickname]);
+
+  // 2. 서버 검증 함수 (예시)
+  const checkNicknameAvailability = async (name) => {
+    try {
+      
+      const response = await API.get("/api/user/check-nickname", {
+          params: { 
+            nickname: nickname 
+          }
+      });
+
+      console.log(response);
+      const isAvailable = response.data;
+
+      if (isAvailable) {
+        setIsNicknameAvailable({ message: "사용 가능한 닉네임입니다.", color: "success" });
+      } else {
+        setIsNicknameAvailable({ message: "이미 사용 중인 닉네임입니다.", color: "error" });
+      }
+    } catch (error) {
+      setIsNicknameAvailable({ message: "검증 중 오류가 발생했습니다.", color: "error" });
+    }
+  };
 
   // 초를 분:초 형식으로 변환
   const formatTime = (seconds) => {
@@ -87,10 +126,16 @@ function Cover() {
         setIsSent(true);
         setTimeLeft(180);
         alert("인증번호가 발송되었습니다. 메일함을 확인해주세요!");
+      }else{
+        alert(message)
       }
+
     } catch (error) {
-      console.error("메일 발송 실패:", error);
-      alert("메일 발송에 실패했습니다. 이메일 주소를 확인하거나 잠시 후 다시 시도해주세요.");
+      if (error.response) {
+        alert(error.response.data); // "이미 사용중인 이메일입니다."
+      } else {
+        alert("서버와 통신할 수 없습니다.");
+      }
     }
   };
   
@@ -311,14 +356,25 @@ function Cover() {
 
             <MDBox mb={2}>
               <MDInput
-                type="email"
+                type="text" // 닉네임이므로 email보다는 text가 적절합니다
                 label="닉네임"
                 variant="outlined"
                 size="small"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 fullWidth
+                // 검증 결과에 따라 Input 테두리 색상 변경 (error 속성 지원 시)
+                error={isNicknameAvailable.color === "error"}
+                success={isNicknameAvailable.color === "success" && nickname.length > 0}
               />
+              {/* 검증 메시지 출력 */}
+              {nickname && (
+                <MDBox mt={0.5} ml={1}>
+                  <MDTypography variant="caption" color={isNicknameAvailable.color} fontWeight="medium">
+                    {isNicknameAvailable.message}
+                  </MDTypography>
+                </MDBox>
+              )}
             </MDBox>
             
             <MDBox mt={4} mb={1}>
