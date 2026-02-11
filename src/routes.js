@@ -38,7 +38,7 @@ Coded by www.creative-tim.com
 // Material Dashboard 2 React layouts
 import { useEffect } from "react";
 import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
+import CreateContent from "layouts/create-content";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -71,11 +71,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Tables",
-    key: "tables",
-    icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/tables",
-    component: <Tables />,
+    name: "컨텐츠 생성",
+    key: "create-content", // key도 route와 맞춰주는 게 관리하기 편해요!
+    icon: <Icon fontSize="small">auto_awesome</Icon>, // 또는 <AutoAwesomeIcon fontSize="small" />
+    route: "/create-content",
+    component: <CreateContent />, // 나중에 생성 페이지 컴포넌트로 교체!
   },
   {
     type: "collapse",
