@@ -11,13 +11,46 @@ import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 
+// API 유틸리티
+import API from "utils/api";
+
 function ProjectModal({ open, onClose, projects, setProjects }) {
   const [newProjectName, setNewProjectName] = useState("");
 
-  const handleAdd = () => {
-    if (newProjectName.trim()) {
-      setProjects([...projects, { project_id: Date.now(), name: newProjectName }]);
-      setNewProjectName("");
+  const handleAdd = async () => {
+    // 방어 코드: 입력값이 없으면 중단
+    if (!newProjectName.trim()) {
+      alert("프로젝트 이름을 입력해주세요.");
+      return;
+    }
+
+    try {
+      //백엔드로 프로젝트 생성 요청
+      const response = await API.post("/api/projects/createProject", 
+        { name: newProjectName }, // 데이터
+        { 
+          headers: {
+            Authorization: `Bearer ${token}` // 티켓 장착!
+          }
+        }
+      );
+
+      //응답 상태 코드가 200(또는 201)인 경우 성공 처리
+      if (response.status === 200 || response.status === 201) {
+        alert("프로젝트가 생성되었습니다!");
+        
+        // 서버에서 생성되어 내려온 새 프로젝트 객체를 상태에 추가
+        setProjects([...projects, response.data]);
+        
+        // 입력창 초기화
+        setNewProjectName("");
+      }
+    } catch (error) {
+      console.error("프로젝트 생성 에러:", error);
+      
+      // 로그인 코드에서 쓰신 방식처럼 서버 에러 메시지 출력
+      const errorMsg = error.response?.data || "프로젝트 생성에 실패했습니다.";
+      alert(errorMsg);
     }
   };
 
