@@ -14,15 +14,11 @@ API.interceptors.request.use(
 
     console.log(rawData);
     if (rawData) {
-      try {
-        // 2. ⭐ 핵심: 'token'이라는 이름을 여기서 정확히 정의합니다!
-        const token = JSON.parse(rawData); 
+        // JSON.parse를 쓰는 대신, 앞뒤 따옴표가 있다면 제거하는 방식이 더 안전합니다.
+        const token = rawData.replace(/^"|"$/g, ''); 
         
-        // 3. 위에서 정의한 'token'을 헤더에 담습니다.
         config.headers.Authorization = `Bearer ${token}`;
-      } catch (e) {
-        console.error("토큰 파싱 중 에러 발생:", e);
-      }
+        console.log("전송되는 헤더:", config.headers.Authorization); // 여기서 따옴표 유무 확인!
     }
     return config;
   },

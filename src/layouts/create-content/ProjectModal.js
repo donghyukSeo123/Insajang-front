@@ -27,12 +27,7 @@ function ProjectModal({ open, onClose, projects, setProjects }) {
     try {
       //백엔드로 프로젝트 생성 요청
       const response = await API.post("/api/projects/createProject", 
-        { name: newProjectName }, // 데이터
-        { 
-          headers: {
-            Authorization: `Bearer ${token}` // 티켓 장착!
-          }
-        }
+        { name: newProjectName }
       );
 
       //응답 상태 코드가 200(또는 201)인 경우 성공 처리
