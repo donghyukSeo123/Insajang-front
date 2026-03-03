@@ -19,21 +19,7 @@ function ProjectModal({ open, onClose, projects, setProjects }) {
 
 
   // 1. 페이지 로드시 프로젝트 목록 불러오기
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await API.get("/api/projects/getUserProjects");
-        
-        if (response.status === 200) {
-          setProjects(response.data); // 서버에서 받아온 배열을 상태에 저장
-        }
-      } catch (error) {
-        console.error("프로젝트 목록 로딩 실패:", error);
-      }
-    };
-
-    fetchProjects();
-  }, []); // 빈 배열: 컴포넌트 마운트 시 1회 실행
+  
 
 
   const handleAdd = async () => {

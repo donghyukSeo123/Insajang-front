@@ -17,6 +17,8 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import ProjectModal from "./ProjectModal";
+ // API 유틸리티
+import API from "utils/api";
 
 function CreateContent() {
   const [projects, setProjects] = useState([]); 
@@ -27,19 +29,23 @@ function CreateContent() {
   const [selectedType, setSelectedType] = useState(""); 
   const [isSpinning, setIsSpinning] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        // 백엔드 연결 시: const res = await axios.get("http://localhost:8000/projects");
-        // setProjects(res.data);
-        setProjects([
-          { project_id: 1, name: "트래킹 블로그" },
-          { project_id: 2, name: "인스타그램 마케팅" }
-        ]); 
-      } catch (err) { console.error(err); }
+        const response = await API.get("/api/projects/getUserProjects");
+        
+        if (response.status === 200) {
+          setProjects(response.data); // 서버에서 받아온 배열을 상태에 저장
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error("프로젝트 목록 로딩 실패:", error);
+      }
     };
+
     fetchProjects();
-  }, []);
+  }, []); // 빈 배열: 컴포넌트 마운트 시 1회 실행
 
   const handleConvert = async (type) => {
     if (!selectedProjectId || !title || !inputText) {
@@ -50,7 +56,7 @@ function CreateContent() {
     setSelectedType(type);
 
     try {
-      const response = await axios.post("http://localhost:8000/generate-content", {
+      const response = await API.post("/api/contents/createContent", {
         project_id: selectedProjectId,
         title: title,
         user_input: inputText,
@@ -126,10 +132,13 @@ function CreateContent() {
                             boxShadow: "0 2px 10px rgba(0,0,0,0.05)"
                           }
                         }}
+                        SelectProps={{
+                                  displayEmpty: true, // 값이 비어 있어도 MenuItem을 보여주게 합니다.
+                                }}
                       >
                         <MenuItem value="" sx={{ py: 1.5 }}>프로젝트를 선택하세요</MenuItem>
                         {projects.map((p) => (
-                          <MenuItem key={p.project_id} value={p.project_id} sx={{ py: 1.5, fontSize: "1rem" }}>
+                          <MenuItem key={p.id} value={p.id} sx={{ py: 1.5, fontSize: "1rem" }}>
                             {p.name}
                           </MenuItem>
                         ))}
