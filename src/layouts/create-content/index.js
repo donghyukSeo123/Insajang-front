@@ -60,8 +60,12 @@ function CreateContent() {
         project_id: selectedProjectId,
         title: title,
         user_input: inputText,
-        content_type: type
-      });
+        content_type: type,
+      },
+      {
+         timeout: 60000 // 🚀 여기서 콤마 찍고 따로 설정해야 Axios가 60초를 기다려줍니다!
+      }
+    );
       setConvertedContent(response.data.generated_text);
     } catch (error) {
       alert("서버 통신 실패! 파이썬 서버가 켜져 있는지 확인하세요.");
