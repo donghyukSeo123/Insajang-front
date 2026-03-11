@@ -105,19 +105,30 @@ function CreateContent() {
     }
   };
 
-  // 2. DB 최종 저장 버튼
   const handleFinalSave = async () => {
-    setIsSaving(true);
+    setIsSaving(true); 
     try {
-      await API.post("/api/contents/saveGeneratedContent", {
-        project_id: selectedProjectId,
-        title: title,
-        content: editedContent,
-        content_type: selectedType,
+      // 🚀 response 변수에 담기
+      const response = await API.post("/api/contents/saveGeneratedContent", {
+        projectId: selectedProjectId,
+        title: finalTitle,
+        body: editedContent,
+        contentType: selectedType,
+        logId: currentLogId,
       });
-      alert("성공적으로 저장되었습니다!");
+
+      // 🚀 서버가 보내준 데이터(ContentResponse) 꺼내기
+      const savedData = response.data; 
+      console.log("저장된 데이터 정보:", savedData);
+
+      alert(`성공적으로 저장되었습니다! (글 번호: ${savedData.contentId})`);
+      
+      // 예: 저장 후 상세 페이지로 이동하고 싶다면?
+      // navigate(`/contents/${savedData.contentId}`);
+
       setIsEditing(false);
     } catch (error) {
+      console.error("저장 중 에러 발생:", error);
       alert("DB 저장 실패!");
     } finally {
       setIsSaving(false);
