@@ -63,7 +63,7 @@ const Logout = () => {
 const routes = [
   {
     type: "collapse",
-    name: "계정 관리",
+    name: "컨텐츠/일정관리",
     key: "dashboard",
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/dashboard",
