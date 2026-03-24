@@ -177,7 +177,7 @@ function Basic() {
                 계정이 없으신가요?{" "}
                 <MDTypography
                   component={Link}
-                  to="/authentication/sign-up"
+                  to="/signup"
                   variant="button"
                   color="info"
                   fontWeight="medium"
