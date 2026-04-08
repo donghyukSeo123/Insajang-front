@@ -21,6 +21,8 @@ import ContentTree from "./components/ContentTree";
 import ScheduleModal from "./components/ScheduleModal";
 import ContentDetailModal from "./components/ContentDetailModal";
 
+import API from "utils/api";
+
 function Dashboard() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   
@@ -31,11 +33,26 @@ function Dashboard() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedContent, setSelectedContent] = useState("");
 
-  const handleOpenDetail = (name) => {
-    setSelectedContent(name);
-    setIsDetailModalOpen(true);
-  };
+  // 상세 모달에 뿌려줄 실제 DB 데이터 객체 저장용
+  const [selectedContentData, setSelectedContentData] = useState(null);
 
+  // 트리에서 아이템 클릭 시 실행될 함수
+  const handleOpenDetail = async (contentId) => {
+    try {
+      // 1. DB에서 상세 데이터 가져오기
+      // 엔드포인트는 백엔드 설계에 맞춰 수정하세요 (예: /api/contents/detail/123)
+      const response = await API.get(`/api/contents/detail/${contentId}`);
+      
+      // 2. 가져온 데이터를 상태에 저장
+      setSelectedContentData(response.data);
+      
+      // 3. 모달 열기
+      setIsDetailModalOpen(true);
+    } catch (error) {
+      console.error("상세 데이터 로딩 실패:", error);
+      alert("데이터를 불러오지 못했습니다.");
+    }
+  };
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -64,8 +81,11 @@ function Dashboard() {
       {/* 상세 모달 */}
       <ContentDetailModal 
         open={isDetailModalOpen} 
-        onClose={() => setIsDetailModalOpen(false)} 
-        contentName={selectedContent} 
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedContentData(null); // 닫을 때 데이터 초기화 (선택사항)
+        }} 
+        data={selectedContentData} 
       />
       <Footer />
     </DashboardLayout>
