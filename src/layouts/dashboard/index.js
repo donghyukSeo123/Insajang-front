@@ -43,6 +43,8 @@ function Dashboard() {
       // 엔드포인트는 백엔드 설계에 맞춰 수정하세요 (예: /api/contents/detail/123)
       const response = await API.get(`/api/contents/detail/${contentId}`);
       
+
+      console.log(response);
       // 2. 가져온 데이터를 상태에 저장
       setSelectedContentData(response.data);
       
@@ -53,6 +55,36 @@ function Dashboard() {
       alert("데이터를 불러오지 못했습니다.");
     }
   };
+
+
+  // 1. 수정 핸들러: API 호출로 DB를 업데이트하고 목록을 갱신함
+  const handleUpdate = async (contentId, updatedFields) => {
+    try {
+      // API 호출 예시: await axios.put(`/api/contents/${id}`, updatedFields);
+      console.log("수정할 ID:", contentId);
+      console.log("수정된 내용:", updatedFields);
+      
+      alert("성공적으로 수정되었습니다.");
+      // 여기서 목록 데이터를 다시 불러오는 함수(fetchData 등)를 호출하면 좋습니다.
+    } catch (error) {
+      console.error("수정 실패:", error);
+    }
+  };
+
+  // 2. 삭제 핸들러: API 호출로 데이터를 삭제함
+  const handleDelete = async (contentId) => {
+    try {
+      // API 호출 예시: await axios.delete(`/api/contents/${id}`);
+      console.log("삭제할 ID:", contentId);
+      
+      alert("삭제 완료되었습니다.");
+      // 여기서도 목록 데이터를 다시 불러오거나 상태에서 제거해야 합니다.
+    } catch (error) {
+      console.error("삭제 실패:", error);
+    }
+  };
+
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -86,6 +118,8 @@ function Dashboard() {
           setSelectedContentData(null); // 닫을 때 데이터 초기화 (선택사항)
         }} 
         data={selectedContentData} 
+        onUpdate={handleUpdate}  // 수정 함수 전달
+        onDelete={handleDelete}  // 삭제 함수 전달
       />
       <Footer />
     </DashboardLayout>
