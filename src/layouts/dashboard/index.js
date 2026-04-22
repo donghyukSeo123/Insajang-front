@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // @mui material components (Grid 등)
 import Grid from "@mui/material/Grid";
@@ -35,6 +35,23 @@ function Dashboard() {
 
   // 상세 모달에 뿌려줄 실제 DB 데이터 객체 저장용
   const [selectedContentData, setSelectedContentData] = useState(null);
+
+
+  const [treeData, setTreeData] = useState([]); // 1. 트리 데이터 상태를 부모로 이동
+
+  // 2. 트리 로드 함수를 부모로 이동
+  const getTreeStructure = async () => {
+    try {
+      const response = await API.get("/api/contents/selectContentsTree");
+      setTreeData(response.data);
+    } catch (error) {
+      console.error("트리 로딩 실패:", error);
+    }
+  };
+
+  useEffect(() => {
+    getTreeStructure();
+  }, []);
 
   // 트리에서 아이템 클릭 시 실행될 함수
   const handleOpenDetail = async (contentId) => {
@@ -72,17 +89,31 @@ function Dashboard() {
   };
 
   // 2. 삭제 핸들러: API 호출로 데이터를 삭제함
-  const handleDelete = async (contentId) => {
-    try {
-      // API 호출 예시: await axios.delete(`/api/contents/${id}`);
-      console.log("삭제할 ID:", contentId);
-      
-      alert("삭제 완료되었습니다.");
-      // 여기서도 목록 데이터를 다시 불러오거나 상태에서 제거해야 합니다.
-    } catch (error) {
-      console.error("삭제 실패:", error);
-    }
-  };
+  const handleDelete = async (contentId) => {// 1. 삭제 확인 컨펌 (물리 삭제이므로 필수!)
+  if (!window.confirm("정말로 삭제하시겠습니까? 삭제 후에는 복구가 불가능합니다.")) {
+    return;
+  }
+
+  try {
+    // 2. API 호출
+    const response = await API.delete(`/api/contents/${contentId}`);
+    console.log("삭제 성공:", response);
+
+    // 3. 사용자 알림
+    alert("삭제 완료되었습니다.");
+
+    // 4. 후속 작업: 모달 닫기 및 목록 갱신
+    // handleCloseModal: 현재 모달을 닫는 상태 관리 함수
+    // fetchContentTree: 트리 구조 데이터를 다시 불러오는 함수
+     setIsDetailModalOpen(false);
+     setSelectedContentData(null);
+     getTreeStructure();
+
+  } catch (error) {
+    console.error("삭제 실패:", error);
+    alert("삭제 중 오류가 발생했습니다. 다시 시도해 주세요.");
+  }
+};
 
 
   return (
@@ -94,11 +125,15 @@ function Dashboard() {
             <ContentCalendar 
               value={selectedDate} 
               onChange={setSelectedDate} 
-              onOpenModal={() => setIsAddModalOpen(true)} // 등록 모달 연결
+              onOpenModal={() => setIsAddModalOpen(true)} 
             />
           </Grid>
           <Grid item xs={12} md={4}>
-            <ContentTree onContentClick={handleOpenDetail} /> {/* 상세 모달 연결 */}
+            {/* 트리 데이터와 새로고침 함수를 Props로 전달 */}
+            <ContentTree 
+              treeData={treeData} 
+              onContentClick={handleOpenDetail} 
+            />
           </Grid>
         </Grid>
       </MDBox>

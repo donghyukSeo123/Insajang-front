@@ -11,27 +11,8 @@ import MDTypography from "components/MDTypography";
  // API 유틸리티
 import API from "utils/api";
 
-function ContentTree({ onContentClick }) {
+function ContentTree({treeData, onContentClick}) {
   
-  // 1. 서버에서 가져온 트리 데이터를 담을 공간
-  const [treeData, setTreeData] = useState([]);
-
-  // 2. [운영 방식] 데이터 로드 함수
-  const getTreeStructure = async () => {
-    try {
-      const response = await API.get("/api/contents/selectContentsTree");
-      setTreeData(response.data); 
-      console.log(response.data);
-    } catch (error) {
-      console.error("트리 로딩 실패:", error);
-    }
-  };
-
-  // 3. 컴포넌트 진입 시 한 번만 실행
-  useEffect(() => {
-    getTreeStructure();
-  }, []); // 👈 빈 배열: 마운트 시 1회 실행
-
   const handleItemClick = (event, nodeId, label) => {
     // 폴더가 아닌 '파일' 형태일 때만 모달을 띄우고 싶다면 조건을 걸 수 있습니다.
     if (nodeId.includes("-file")) {
@@ -101,6 +82,10 @@ function ContentTree({ onContentClick }) {
 }
 
 ContentTree.propTypes = {
+  // treeData가 배열(array)이며 반드시 전달되어야 함을 명시
+  treeData: PropTypes.array.isRequired, 
+  
+  // 기존에 있던 설정
   onContentClick: PropTypes.func.isRequired,
 };
 
