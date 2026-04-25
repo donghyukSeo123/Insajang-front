@@ -76,17 +76,20 @@ function Dashboard() {
 
   // 1. 수정 핸들러: API 호출로 DB를 업데이트하고 목록을 갱신함
   const handleUpdate = async (contentId, updatedFields) => {
-    try {
-      // API 호출 예시: await axios.put(`/api/contents/${id}`, updatedFields);
-      console.log("수정할 ID:", contentId);
-      console.log("수정된 내용:", updatedFields);
-      
+  try {
+    // API 유틸을 사용하여 수정 요청 (PATCH는 부분 수정에 적합)
+    const response = await API.patch(`/api/contents/update/${contentId}`, updatedFields);
+
+    if (response.status === 200 || response.data.success) {
       alert("성공적으로 수정되었습니다.");
-      // 여기서 목록 데이터를 다시 불러오는 함수(fetchData 등)를 호출하면 좋습니다.
-    } catch (error) {
-      console.error("수정 실패:", error);
+      getTreeStructure();
     }
-  };
+  } catch (error) {
+    console.error("수정 중 오류 발생:", error);
+    // 유틸리티에서 에러 처리를 공통으로 하지 않는 경우 여기서 처리
+    alert(error.response?.data?.message || "수정에 실패했습니다.");
+  }
+};
 
   // 2. 삭제 핸들러: API 호출로 데이터를 삭제함
   const handleDelete = async (contentId) => {// 1. 삭제 확인 컨펌 (물리 삭제이므로 필수!)
