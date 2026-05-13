@@ -13,7 +13,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
-function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop }) {
+function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, onRangeChange}) {
   const calendarRef = useRef(null);
   const [calendarTitle, setCalendarTitle] = useState("");
 
@@ -73,11 +73,19 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop }) 
           locale="ko"
           height="650px"
           events={events}
+          eventStartEditable={false}
           titleFormat={{ year: "numeric", month: "long" }}
           
           // 핵심: 날짜가 변경(버튼 클릭 포함)될 때마다 실행됨
           datesSet={(arg) => {
             setCalendarTitle(arg.view.title);
+             // 2. 부모(Dashboard)에게 현재 보이는 시작일과 종료일 전달 (추가)
+            if (onRangeChange) {
+              onRangeChange(arg.startStr, arg.endStr);
+              console.log('시작 :' + arg.startStr);
+              console.log('끝 :' + arg.endStr);
+
+            }
           }}
 
           droppable={true} 
@@ -94,6 +102,6 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop }) 
 }
 
 ContentCalendar.defaultProps = { events: [], onEventClick: () => {}, onExternalDrop: () => {} };
-ContentCalendar.propTypes = { events: PropTypes.array, onOpenModal: PropTypes.func.isRequired, onEventClick: PropTypes.func, onExternalDrop: PropTypes.func };
+ContentCalendar.propTypes = { events: PropTypes.array, onOpenModal: PropTypes.func.isRequired, onEventClick: PropTypes.func, onExternalDrop: PropTypes.func, onRangeChange: PropTypes.func };
 
 export default ContentCalendar;
