@@ -130,15 +130,6 @@ function Basic() {
             {/* 로그인 유지 & 찾기 링크 분리 배치 */}
             <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
               <MDBox display="flex" alignItems="center" ml={-1}>
-                <Switch checked={rememberMe} onChange={handleSetRememberMe} />
-                <MDTypography
-                  variant="button"
-                  color="text"
-                  onClick={handleSetRememberMe}
-                  sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-                >
-                  로그인 유지
-                </MDTypography>
               </MDBox>
               
               <MDBox display="flex" alignItems="center">

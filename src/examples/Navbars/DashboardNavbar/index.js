@@ -162,38 +162,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
 
             <MDBox width="1px" height="15px" bgcolor="#e0e0e0" />
 
-            {/* 2. 인스타 연결 배지 (API 상태) */}
-            <MDBox display="flex" alignItems="center" px={1.5}>
-              <Icon sx={{ color: "#E1306C", mr: 0.5, fontSize: "16px !important" }}>link</Icon>
-              <MDTypography variant="caption" fontWeight="bold" sx={{ color: "#344767" }}>
-                인스타 연결됨
-              </MDTypography>
-            </MDBox>
-
-            <MDBox width="1px" height="15px" bgcolor="#e0e0e0" />
-
-            {/* 3. 트렌드 반영 상태 배지 옆에 키워드 추가 */}
-            <MDBox display="flex" alignItems="center" px={1.5}>
-              <Icon sx={{ color: "#1A73E8", mr: 0.8, fontSize: "16px !important" }}>
-                auto_awesome
-              </Icon>
-              <MDBox>
-                <MDTypography
-                  variant="caption"
-                  fontWeight="bold"
-                  sx={{ color: "#344767", display: "block", lineHeight: 1 }}
-                >
-                  최신 트렌드 반영 완료
-                </MDTypography>
-                {/* 요게 핵심! 파이썬에서 받아올 실시간 키워드들 */}
-                <MDTypography
-                  variant="button"
-                  sx={{ fontSize: "10px", color: "#1A73E8", fontWeight: "medium" }}
-                >
-                  #연말결산 #크리스마스마켓 #겨울코디
-                </MDTypography>
-              </MDBox>
-            </MDBox>
           </MDBox>
         </MDBox>
         {/* 애니메이션 정의 (파일 하단에 이미 있다면 생략 가능) */}
