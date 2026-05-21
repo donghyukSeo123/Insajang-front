@@ -55,6 +55,32 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
             </MDButton>
           </MDBox>
         </MDBox>
+
+        {/* 상태 범례 (Legend) */}
+        <MDBox display="flex" alignItems="center" gap={2}>
+          <MDBox display="flex" alignItems="center" gap={1}>
+            <MDBox
+              width="10px"
+              height="10px"
+              borderRadius="50%"
+              sx={{ backgroundColor: "#4CAF50" }}
+            />
+            <MDTypography variant="button" fontWeight="regular" color="text">
+              게시완료
+            </MDTypography>
+          </MDBox>
+          <MDBox display="flex" alignItems="center" gap={1}>
+            <MDBox
+              width="10px"
+              height="10px"
+              borderRadius="50%"
+              sx={{ backgroundColor: "#FB8C00" }}
+            />
+            <MDTypography variant="button" fontWeight="regular" color="text">
+              게시예약
+            </MDTypography>
+          </MDBox>
+        </MDBox>
       </MDBox>
       <Divider sx={{ my: 0 }} />
 
