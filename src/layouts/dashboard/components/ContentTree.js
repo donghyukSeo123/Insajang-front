@@ -9,6 +9,20 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import { Draggable } from "@fullcalendar/interaction";
 
+// 상태별 텍스트 및 색상 매핑 함수
+const getStatusBadge = (status) => {
+  switch (status?.toUpperCase()) {
+    case "READY":
+      return { label: "준비됨", color: "#7b809a", bgColor: "#f0f2f5" };
+    case "SCHEDULED":
+      return { label: "게시예약", color: "#fb8c00", bgColor: "#fff3e0" };
+    case "PUBLISHED":
+      return { label: "게시완료", color: "#4caf50", bgColor: "#e8f5e9" };
+    default:
+      return null;
+  }
+};
+
 function ContentTree({ treeData, onContentClick }) {
   useEffect(() => {
     const draggableEl = document.getElementById("external-events");
@@ -21,7 +35,6 @@ function ContentTree({ treeData, onContentClick }) {
           id: eventEl.getAttribute("data-id"),
           title: eventEl.getAttribute("data-title"),
           color: eventEl.getAttribute("data-color") || "#1A73E8",
-          // create: true를 삭제하여 드롭 시 즉시 이벤트가 생성되는 것을 방지
         };
       },
     });
@@ -36,13 +49,19 @@ function ContentTree({ treeData, onContentClick }) {
         <TreeItem
           key={`folder-${node.projectId}`}
           nodeId={`folder-${node.projectId}`}
-          label={node.name}
-          icon={<FolderIcon sx={{ color: "#e29578" }} />}
+          label={
+            <span style={{ fontSize: "1.05rem", fontWeight: "600", color: "#344767" }}>
+              {node.name}
+            </span>
+          }
+          icon={<FolderIcon sx={{ color: "#e29578", fontSize: "1.25rem !important" }} />}
         >
           {node.children.map((child) => renderTreeNodes(child))}
         </TreeItem>
       );
     }
+
+    const badge = getStatusBadge(node.status);
 
     // 2. 컨텐츠(파일) 노드
     return (
@@ -54,18 +73,54 @@ function ContentTree({ treeData, onContentClick }) {
             className="fc-event"
             data-id={node.contentId}
             data-title={node.title}
-            data-color={node.color || "#2196f3"}
+            data-color={node.color || (node.status === "PUBLISHED" ? "#4caf50" : node.status === "SCHEDULED" ? "#fb8c00" : "#2196f3")}
             style={{ 
-              padding: "4px 8px", 
+              padding: "5px 0",
               cursor: "grab",
-              display: "block",
-              borderRadius: "4px"
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
             }}
           >
-            {node.title || "제목 없음"}
+            {/* 제목 글씨 */}
+            <span style={{ 
+              whiteSpace: "normal",
+              wordBreak: "break-all",
+              fontSize: "1rem",
+              fontWeight: "500",
+              color: "#495057",
+              flex: 1,
+              marginRight: "10px"
+            }}>
+              {node.title || "제목 없음"}
+            </span>
+
+            {/* 상태 배지 */}
+            {badge && (
+              <span style={{
+                fontSize: "11px",
+                fontWeight: "bold",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                color: badge.color,
+                backgroundColor: badge.bgColor,
+                whiteSpace: "nowrap",
+                flexShrink: 0
+              }}>
+                {badge.label}
+              </span>
+            )}
           </div>
         }
-        icon={<DescriptionIcon sx={{ color: "#2196f3" }} />}
+        icon={
+          <DescriptionIcon 
+            sx={{ 
+              fontSize: "1.2rem !important", 
+              color: node.status === "PUBLISHED" ? "#4caf50" : node.status === "SCHEDULED" ? "#fb8c00" : "#2196f3" 
+            }} 
+          />
+        }
       />
     );
   };
@@ -73,7 +128,7 @@ function ContentTree({ treeData, onContentClick }) {
   return (
     <Card sx={{ height: "100%", minHeight: "750px", bgcolor: "#f8f9fa" }}>
       <MDBox p={3}>
-        <MDTypography variant="h6" fontWeight="medium" gutterBottom>
+        <MDTypography variant="h6" fontWeight="bold" gutterBottom>
           컨텐츠 라이브러리
         </MDTypography>
         <MDTypography variant="caption" color="text" sx={{ mb: 2, display: 'block' }}>

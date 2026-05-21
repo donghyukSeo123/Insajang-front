@@ -34,6 +34,9 @@ function Dashboard() {
   const getTreeStructure = async () => {
     try {
       const response = await API.get("/api/contents/selectContentsTree");
+
+      console.log('트리데이터 : ' + response);
+      console.log(response);
       setTreeData(response.data);
     } catch (error) {
       console.error("트리 로딩 실패:", error);

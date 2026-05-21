@@ -90,7 +90,23 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
         "& .fc-col-header-cell": { padding: "15px 0", backgroundColor: "#f8f9fa", border: "none !important" },
         "& .fc-col-header-cell-cushion": { fontSize: "0.8rem", fontWeight: "700", color: "#7b809a", textDecoration: "none !important" },
         "& .fc-daygrid-day": { border: "1px solid #f0f2f5 !important" },
-        "& .fc-event": { border: "none", borderRadius: "6px", padding: "3px 8px", cursor: "pointer" }
+        // 캘린더를 감싸는 MDBox의 sx 속성 중 이벤트 관련 부분을 아래와 같이 수정하세요.
+        "& .fc-event": { 
+          border: "none", 
+          borderRadius: "6px", 
+          padding: "3px 8px", 
+          cursor: "pointer",
+          overflow: "hidden",        // 넘치는 부분 숨기기
+          textOverflow: "ellipsis",  // 말줄임표(...) 활성화
+          whiteSpace: "nowrap",      // 줄바꿈 방지
+          display: "block"           // 블록 요소로 지정하여 말줄임 적용
+        },
+        // 이벤트 내부 타이틀 감싸는 영역도 함께 잡아줍니다.
+        "& .fc-event-title": {
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap"
+        }
       }}>
         <FullCalendar
           ref={calendarRef}
@@ -118,7 +134,6 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
           drop={handleDrop} 
           editable={true}
           eventReceive={(info) => info.revert()}
-          dateClick={(info) => onOpenModal(info.dateStr)}
           eventClick={(info) => onEventClick(info.event)}
           dayMaxEvents={3}
         />

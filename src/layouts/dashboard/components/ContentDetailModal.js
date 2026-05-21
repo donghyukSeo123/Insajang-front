@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
- import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
 import Divider from "@mui/material/Divider";
@@ -8,7 +8,7 @@ import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
 
-// [중요] 에디터 라이브러리 및 CSS
+// 에디터 라이브러리 및 CSS
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; 
 
@@ -92,8 +92,23 @@ function ContentDetailModal({ open, onClose, data, onUpdate, onDelete }) {
             overflowY: "auto", 
             flex: 1,
             mt: 2,
-            minHeight: "500px", // 에디터가 충분히 보일 공간 확보
-            "& .ql-editor": { minHeight: "400px" } // 에디터 내부 높이 강제
+            minHeight: "500px", // 에디터 공간 확보
+            
+            // [교정] MUI 글로벌 스타일이 Quill 에디터 내부 p, br 태그를 무력화하는 현상 방지
+            "& .ql-editor": { 
+              minHeight: "400px",
+              fontSize: "16px",
+              lineHeight: "1.6",
+              color: "#000000 !important",
+            },
+            "& .ql-editor p": {
+              display: "block !important",
+              margin: "0 0 1rem 0 !important", // 문단 간격 확보
+              padding: "0 !important",
+            },
+            "& .ql-editor br": {
+              display: "inline !important",
+            }
           }}
         >
           {isEditing ? (
@@ -107,11 +122,19 @@ function ContentDetailModal({ open, onClose, data, onUpdate, onDelete }) {
             </MDBox>
           ) : (
             <MDBox 
+              className="ql-editor" // 조회 모드에서도 Quill 스타일 포맷을 동일하게 유지
               sx={{ 
                 p: 2, 
                 border: "1px solid #ddd", 
                 borderRadius: "8px",
-                "& img": { maxWidth: "100%" } 
+                minHeight: "400px",
+                whiteSpace: "normal",
+                color: "inherit",
+                "& img": { maxWidth: "100%" },
+                "& p": {
+                  display: "block !important",
+                  margin: "0 0 1rem 0 !important",
+                }
               }}
               dangerouslySetInnerHTML={{ __html: editedContent }} 
             />
@@ -143,5 +166,19 @@ function ContentDetailModal({ open, onClose, data, onUpdate, onDelete }) {
     </Modal>
   );
 }
+
+// PropTypes 정의 추가 (eslint 경고 방지 및 안정성 확보)
+ContentDetailModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  data: PropTypes.shape({
+    contentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    title: PropTypes.string,
+    body: PropTypes.string,
+    content: PropTypes.string,
+  }),
+  onUpdate: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
 
 export default ContentDetailModal;

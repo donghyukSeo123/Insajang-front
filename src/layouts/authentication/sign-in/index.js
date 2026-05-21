@@ -57,8 +57,9 @@ function Basic() {
 
       if (response.status === 200) {
         alert("로그인 성공! 환영합니다.");
+        console.log('로그인 유저명 :' + JSON.stringify(response.data.userName));
         localStorage.setItem("accessToken", JSON.stringify(response.data.accessToken));
-        localStorage.setItem("username", JSON.stringify(response.data.userName));
+        localStorage.setItem("userName", response.data.userName);
         window.location.href = "/dashboard";
       }
     } catch (error) {
