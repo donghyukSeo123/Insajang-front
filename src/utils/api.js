@@ -6,19 +6,30 @@ const API = axios.create({
   timeout: 5000,
 });
 
-// 인터셉터: 모든 요청 전에 실행되는 자동 매표소
+let isRefreshing = false;
+let failedQueue = [];
+
+// 대기 중인 요청들을 처리하는 헬퍼 함수
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// 요청 인터셉터: 모든 API 호출 전에 Authorization 헤더에 Access Token 주입
 API.interceptors.request.use(
   (config) => {
-    // 1. 금고에서 날것의 데이터를 가져옵니다.
     const rawData = localStorage.getItem("accessToken");
-
-    console.log(rawData);
     if (rawData) {
-        // JSON.parse를 쓰는 대신, 앞뒤 따옴표가 있다면 제거하는 방식이 더 안전합니다.
-        const token = rawData.replace(/^"|"$/g, ''); 
-        
-        config.headers.Authorization = `Bearer ${token}`;
-        console.log("전송되는 헤더:", config.headers.Authorization); // 여기서 따옴표 유무 확인!
+      // 앞뒤 따옴표 제거 후 헤더에 Bearer 토큰 주입
+      const token = rawData.replace(/^"|"$/g, ''); 
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log("전송되는 헤더:", config.headers.Authorization);
     }
     return config;
   },
@@ -27,27 +38,89 @@ API.interceptors.request.use(
   }
 );
 
-// 💡 2. 응답 인터셉터 추가: 서버에서 온 답변을 가로채서 401(만료) 검사!
+// 응답 인터셉터: 401 Unauthorized 감지 시 토큰 재발급 자동 수행 (Silent Reissue)
 API.interceptors.response.use(
   (response) => {
-    // 서버 응답이 성공(2xx)하면 아무 작업 없이 그대로 데이터를 넘겨줍니다.
     return response;
   },
-  (error) => {
-    // 에러 응답이 왔고, 그 에러 코드가 401 Unauthorized(토큰 만료 등)라면
-    if (error.response && error.response.status === 401) {
-      alert("로그인 세션이 만료되었습니다. 다시 로그인해 주세요.");
+  async (error) => {
+    const originalRequest = error.config;
+
+    // 에러 응답이 왔고, 401 Unauthorized 이며, 아직 재시도하지 않은 요청인 경우
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
       
-      // 💡 동혁님의 금고 key 이름인 'accessToken'으로 정확히 삭제
-      // 💡 토큰과 유저네임을 세트로 깔끔하게 삭제!
-      localStorage.removeItem("accessToken"); 
-      localStorage.removeItem("username");
-      
-      // 💡 navigate 대신 브라우저 강제 이동 사용
-      window.location.href = "/authentication/sign-in";
+      // 토큰 재발급 요청 자체가 401 에러를 낸 경우는 리프레시 토큰마저 만료된 상태이므로 강제 로그아웃
+      if (originalRequest.url === "/api/user/reissue") {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("username");
+        window.location.href = "/authentication/sign-in";
+        return Promise.reject(error);
+      }
+
+      originalRequest._retry = true;
+
+      // 이미 다른 API 요청에 의해 토큰 갱신이 진행 중이라면 큐에 등록하여 대기
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return API(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      isRefreshing = true;
+
+      try {
+        const rawRefreshToken = localStorage.getItem("refreshToken");
+        if (!rawRefreshToken) {
+          throw new Error("No refresh token available");
+        }
+        const refreshToken = rawRefreshToken.replace(/^"|"$/g, '');
+
+        // 💡 중요: 순수 axios 객체로 재발급 요청을 전송하여 헤더 중첩 및 무한 루프 차단
+        const res = await axios.post("http://localhost:8080/api/user/reissue", {
+          refreshToken: refreshToken,
+        });
+
+        if (res.status === 200) {
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = res.data;
+
+          // 발급받은 새로운 토큰들을 금고(localStorage)에 저장
+          localStorage.setItem("accessToken", JSON.stringify(newAccessToken));
+          localStorage.setItem("refreshToken", JSON.stringify(newRefreshToken));
+
+          // 기본 헤더 및 실패했던 originalRequest의 헤더를 갱신
+          API.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+          // 대기 큐의 요청들을 새 토큰으로 일괄 실행 처리
+          processQueue(null, newAccessToken);
+          isRefreshing = false;
+
+          return API(originalRequest); // 기존 요청 재실행
+        }
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        isRefreshing = false;
+
+        alert("로그인 세션이 만료되었습니다. 다시 로그인해 주세요.");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("username");
+        window.location.href = "/authentication/sign-in";
+
+        return Promise.reject(refreshError);
+      }
     }
-    
-    // 401 에러가 아니거나 처리가 끝난 후 에러를 그대로 리턴
+
     return Promise.reject(error);
   }
 );

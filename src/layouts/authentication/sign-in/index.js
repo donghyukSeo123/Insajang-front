@@ -95,6 +95,7 @@ function Basic() {
         alert("로그인 성공! 환영합니다.");
         console.log('로그인 유저명 :' + JSON.stringify(response.data.userName));
         localStorage.setItem("accessToken", JSON.stringify(response.data.accessToken));
+        localStorage.setItem("refreshToken", JSON.stringify(response.data.refreshToken));
         localStorage.setItem("userName", response.data.userName);
         window.location.href = "/dashboard";
       }
@@ -116,6 +117,7 @@ function Basic() {
       const loginRes = await API.post("/api/user/login", guestCredentials);
       if (loginRes.status === 200) {
         localStorage.setItem("accessToken", JSON.stringify(loginRes.data.accessToken));
+        localStorage.setItem("refreshToken", JSON.stringify(loginRes.data.refreshToken));
         localStorage.setItem("userName", loginRes.data.userName);
         alert("게스트 계정으로 로그인되었습니다! 즐거운 체험 되세요.");
         window.location.href = "/dashboard";
@@ -135,6 +137,7 @@ function Basic() {
           const loginRes = await API.post("/api/user/login", guestCredentials);
           if (loginRes.status === 200) {
             localStorage.setItem("accessToken", JSON.stringify(loginRes.data.accessToken));
+            localStorage.setItem("refreshToken", JSON.stringify(loginRes.data.refreshToken));
             localStorage.setItem("userName", loginRes.data.userName);
             alert("게스트 계정이 자동 생성되어 로그인되었습니다! 즐거운 체험 되세요.");
             window.location.href = "/dashboard";
