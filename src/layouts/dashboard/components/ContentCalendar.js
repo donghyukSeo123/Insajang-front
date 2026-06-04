@@ -34,23 +34,45 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
   };
 
   return (
-    <Card sx={{ height: "100%", minHeight: "800px", boxShadow: "none" }}>
+    <Card 
+      sx={{ 
+        height: "100%", 
+        minHeight: "800px", 
+        boxShadow: "0 8px 32px rgba(0,0,0,0.05)",
+        borderRadius: "24px",
+        border: "none"
+      }}
+    >
       <MDBox p={3} display="flex" justifyContent="space-between" alignItems="center">
         <MDBox>
-          <MDTypography variant="h5" fontWeight="medium">
-            콘텐츠 마스터 캘린더
+          <MDTypography variant="h5" fontWeight="bold">
+            콘텐츠 플래닝 캘린더
           </MDTypography>
           <MDBox display="flex" alignItems="center" mt={0.5}>
-            <MDButton variant="text" color="dark" iconOnly onClick={handlePrev}>
+            <MDButton 
+              variant="text" 
+              color="dark"
+              iconOnly 
+              onClick={handlePrev}
+            >
               <Icon>chevron_left</Icon>
             </MDButton>
             
-            {/* 이 버튼의 글자가 이제 자동으로 바뀝니다 */}
-            <MDButton variant="text" color="dark" sx={{ mx: 1, fontSize: "1.1rem", fontWeight: "bold" }} onClick={handleToday}>
+            <MDButton 
+              variant="text" 
+              color="dark"
+              sx={{ mx: 1, fontSize: "1.1rem", fontWeight: "bold" }} 
+              onClick={handleToday}
+            >
               {calendarTitle}
             </MDButton>
 
-            <MDButton variant="text" color="dark" iconOnly onClick={handleNext}>
+            <MDButton 
+              variant="text" 
+              color="dark"
+              iconOnly 
+              onClick={handleNext}
+            >
               <Icon>chevron_right</Icon>
             </MDButton>
           </MDBox>
@@ -90,22 +112,52 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
         "& .fc-col-header-cell": { padding: "15px 0", backgroundColor: "#f8f9fa", border: "none !important" },
         "& .fc-col-header-cell-cushion": { fontSize: "0.8rem", fontWeight: "700", color: "#7b809a", textDecoration: "none !important" },
         "& .fc-daygrid-day": { border: "1px solid #f0f2f5 !important" },
-        // 캘린더를 감싸는 MDBox의 sx 속성 중 이벤트 관련 부분을 아래와 같이 수정하세요.
+        "& .fc-daygrid-day-number": { color: "#495057", padding: "10px", fontSize: "0.9rem", fontWeight: "bold" },
+        "& .fc-day-other .fc-daygrid-day-number": { color: "#c2c2c2 !important" }, // 타 월 일자
+        "& .fc-day-today": { backgroundColor: "rgba(3, 169, 244, 0.08) !important" }, // 오늘 날짜 하늘색 소프트 하이라이팅
         "& .fc-event": { 
           border: "none", 
           borderRadius: "6px", 
-          padding: "3px 8px", 
           cursor: "pointer",
-          overflow: "hidden",        // 넘치는 부분 숨기기
-          textOverflow: "ellipsis",  // 말줄임표(...) 활성화
-          whiteSpace: "nowrap",      // 줄바꿈 방지
-          display: "block"           // 블록 요소로 지정하여 말줄임 적용
+          fontSize: "0.82rem !important", // 싱글라인에 적합한 가독성 좋은 폰트 크기
+          fontWeight: "bold",
+          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.03)",
+          overflow: "hidden !important",
+          textOverflow: "ellipsis !important",
+          whiteSpace: "nowrap !important"
         },
-        // 이벤트 내부 타이틀 감싸는 영역도 함께 잡아줍니다.
+        "& .fc-daygrid-block-event": {
+          color: "#ffffff !important", // 블록형 이벤트는 항상 흰색 글자
+          padding: "3px 6px !important"
+        },
+        "& .fc-daygrid-dot-event": {
+          color: "#344767 !important", // 라인형(점) 이벤트는 진회색 글자
+          padding: "4px 6px !important",
+          backgroundColor: "transparent !important",
+          display: "flex !important",
+          flexWrap: "wrap !important", // 자식 요소(시간/제목)의 줄바꿈 배치를 허용
+          alignItems: "center",
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.04) !important"
+          }
+        },
         "& .fc-event-title": {
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap"
+          display: "block !important", 
+          flexBasis: "100% !important", // 100% 너비를 차지하여 강제 줄바꿈(Time 아래 배치) 유도
+          overflow: "hidden !important",
+          textOverflow: "ellipsis !important",
+          whiteSpace: "nowrap !important",
+          fontSize: "0.82rem !important",
+          fontWeight: "bold !important",
+          marginTop: "2px",
+          paddingLeft: "14px !important" // 좌측 점(Dot) 마커 라인과 줄을 맞추기 위한 패딩
+        },
+        "& .fc-event-time": {
+          display: "inline-block !important", 
+          fontWeight: "bold",
+          fontSize: "0.78rem !important",
+          color: "rgba(0, 0, 0, 0.55) !important", // 시간 표시에 최적화된 은은한 서브 텍스트 컬러
+          marginRight: "4px"
         }
       }}>
         <FullCalendar
@@ -118,15 +170,12 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
           eventStartEditable={false}
           titleFormat={{ year: "numeric", month: "long" }}
           
-          // 핵심: 날짜가 변경(버튼 클릭 포함)될 때마다 실행됨
           datesSet={(arg) => {
             setCalendarTitle(arg.view.title);
-             // 2. 부모(Dashboard)에게 현재 보이는 시작일과 종료일 전달 (추가)
             if (onRangeChange) {
               onRangeChange(arg.startStr, arg.endStr);
               console.log('시작 :' + arg.startStr);
               console.log('끝 :' + arg.endStr);
-
             }
           }}
 

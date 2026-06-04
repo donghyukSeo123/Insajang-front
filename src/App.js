@@ -47,7 +47,7 @@ import createCache from "@emotion/cache";
 import routes from "routes";
 //로그인페이지
 import LoginPage from "layouts/authentication/sign-in";
-import SignupPage from "layouts/authentication/sign-up";
+import SignupPage from "layouts/authentication/sign-up-new";
 
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";

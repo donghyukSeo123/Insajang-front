@@ -46,6 +46,39 @@ function CreateContent() {
   const [convertedContent, setConvertedContent] = useState(null);
   const [selectedType, setSelectedType] = useState(""); 
   const [currentLogId, setCurrentLogId] = useState(null); //컨텐츠요청로그아이디
+  
+  // AI 페르소나 말투 상태 (마이페이지 기본 선호값 가져옴)
+  const [selectedPersona, setSelectedPersona] = useState(
+    localStorage.getItem("preferredPersona") || "friendly"
+  );
+
+  const personas = [
+    {
+      id: "friendly",
+      title: "😊 친근하고 활기찬 파워 블로거",
+      tagline: "이모지를 적극 활용하며 친근하고 활력이 넘치는 대화체 문장",
+      example: '"안녕하세요 사장님들~ 오늘 등산 꿀팁 대방출합니다! ✨🏃‍♂️"',
+    },
+    {
+      id: "professional",
+      title: "💼 신뢰감을 주는 전문 마케터",
+      tagline: "신뢰도 높은 데이터와 격식 있는 비즈니스 톤앤매너 문장",
+      example: '"최신 아웃도어 트렌드 분석 및 객관적 코스 난이도를 제언해 드립니다."',
+    },
+    {
+      id: "instagram",
+      title: "✨ 트렌디하고 감성적인 인스타 셀럽",
+      tagline: "해시태그와 여백을 살린 트렌디하고 분위기 있는 어투",
+      example: '"오늘 날씨랑 어울리는 무드... 공유할게요 ☕️🍂 #데일리 #감성"',
+    },
+    {
+      id: "calm",
+      title: "📝 차분하고 간결한 정보 전달자",
+      tagline: "군더더기 없는 객관적 사실 중심의 간결하고 차분한 문장",
+      example: '"해당 등산 코스의 난이도, 소요 시간, 편의시설을 간결히 안내해 드립니다."',
+    },
+  ];
+
   // 상태 제어
   const [isSpinning, setIsSpinning] = useState(false); // 생성 로딩
   const [isSaving, setIsSaving] = useState(false); // DB 저장 로딩
@@ -70,6 +103,10 @@ function CreateContent() {
   }, []); // 빈 배열: 컴포넌트 마운트 시 1회 실행
 
   const handleConvert = async (type) => {
+    if (type === "INSTA") {
+      alert("준비 중인 기능입니다.");
+      return;
+    }
     if (!selectedProjectId || !title || !inputText) {
       alert("프로젝트, 주제, 내용을 모두 입력해주세요!");
       return;
@@ -85,6 +122,7 @@ function CreateContent() {
         title: title,
         user_input: inputText,
         content_type: type,
+        selectedPersona: selectedPersona, // 페르소나 전달
       },
       {
          timeout: 60000 // 🚀 여기서 콤마 찍고 따로 설정해야 Axios가 60초를 기다려줍니다!
@@ -114,6 +152,7 @@ function CreateContent() {
         title: finalTitle,
         body: editedContent,
         contentType: selectedType,
+        selectedPersona: selectedPersona, // 최종 저장 페르소나 전달
         logId: currentLogId,
       });
 
@@ -163,14 +202,14 @@ function CreateContent() {
                 <MDTypography variant="h4" fontWeight="bold" mb={3}>컨텐츠 메이커 스튜디오</MDTypography>
                 
                 <Grid container spacing={3}>
-                  <Grid item xs={12}> {/* 한 줄 전체를 써서 큼직하게 배치 */}
+                  {/* 1단: 프로젝트 선택 */}
+                  <Grid item xs={12}>
                     <MDBox display="flex" flexDirection="column" gap={1}>
                       <MDBox display="flex" justifyContent="space-between" alignItems="flex-end" px={1}>
                         <MDTypography variant="h6" fontWeight="bold" color="dark">
                           📂 프로젝트 선택
                         </MDTypography>
                         
-                        {/* 버튼을 더 크게, 강조된 스타일로 변경 */}
                         <MDButton 
                           variant="gradient" 
                           color="info" 
@@ -190,7 +229,7 @@ function CreateContent() {
                         sx={{ 
                           mt: 1,
                           "& .MuiOutlinedInput-root": {
-                            height: "38px", // 높이를 키워서 듬직하게
+                            height: "38px",
                             fontSize: "1.1rem",
                             backgroundColor: "#ffffff",
                             borderRadius: "12px",
@@ -198,8 +237,8 @@ function CreateContent() {
                           }
                         }}
                         SelectProps={{
-                                  displayEmpty: true, // 값이 비어 있어도 MenuItem을 보여주게 합니다.
-                                }}
+                          displayEmpty: true,
+                        }}
                       >
                         <MenuItem value="" sx={{ py: 1.5 }}>프로젝트를 선택하세요</MenuItem>
                         {projects.map((p) => (
@@ -211,12 +250,81 @@ function CreateContent() {
                     </MDBox>
                   </Grid>
 
+                  {/* 1.5단: AI 페르소나 및 말투 카드 그리드 선택 (설명 및 예시 포함) */}
+                  <Grid item xs={12}>
+                    <Divider sx={{ my: 1 }} />
+                    <MDBox mb={1.5}>
+                      <MDTypography variant="h6" fontWeight="bold" color="dark" mb={0.5}>
+                        🤖 AI 페르소나 및 말투 선택
+                      </MDTypography>
+                      <MDTypography variant="button" color="text" sx={{ mb: 2, display: "block" }}>
+                        콘텐츠 변환 생성 시 AI 모델이 채택할 고유의 말투와 작성 문체를 카드 형태로 직관적으로 선택할 수 있습니다.
+                      </MDTypography>
+                    </MDBox>
+
+                    <Grid container spacing={2}>
+                      {personas.map((persona) => {
+                        const isActive = selectedPersona === persona.id;
+                        return (
+                          <Grid item xs={12} sm={6} key={persona.id}>
+                            <MDBox
+                              onClick={() => {
+                                setSelectedPersona(persona.id);
+                                localStorage.setItem("preferredPersona", persona.id);
+                              }}
+                              sx={{
+                                p: 2.2,
+                                borderRadius: "16px",
+                                border: isActive ? "2px solid #38bdf8" : "1px solid #f0f2f5",
+                                backgroundColor: isActive ? "rgba(56, 189, 248, 0.03)" : "#fcfcfd",
+                                cursor: "pointer",
+                                transition: "all 0.25s ease",
+                                userSelect: "none",
+                                "&:hover": {
+                                  borderColor: isActive ? "#38bdf8" : "#adb5bd",
+                                  transform: "translateY(-1px)",
+                                },
+                              }}
+                            >
+                              <MDTypography variant="body2" fontWeight="bold" color={isActive ? "info" : "dark"} mb={0.5}>
+                                {persona.title}
+                              </MDTypography>
+                              <MDTypography variant="caption" color="text" sx={{ display: "block", mb: 1, lineHeight: "1.4" }}>
+                                {persona.tagline}
+                              </MDTypography>
+                              <MDBox sx={{ backgroundColor: "rgba(0,0,0,0.02)", p: 1.2, borderRadius: "8px", borderLeft: "3px solid #ccc" }}>
+                                <MDTypography variant="caption" sx={{ fontStyle: "italic", color: "#6c757d", display: "block" }}>
+                                  {persona.example}
+                                </MDTypography>
+                              </MDBox>
+                            </MDBox>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                    <Divider sx={{ my: 2 }} />
+                  </Grid>
+
                   {/* 2단: 주제 입력 */}
                   <Grid item xs={12}>
                     <MDTypography variant="button" fontWeight="bold" color="text" ml={1}>포스팅 주제</MDTypography>
                     <MDInput 
-                      fullWidth placeholder="예: 무릎 안 아픈 북한산 트래킹 코스 추천" 
-                      value={title} onChange={(e) => setTitle(e.target.value)} sx={{ mt: 1 }}
+                      fullWidth 
+                      placeholder="예: 무릎 안 아픈 북한산 트래킹 코스 추천" 
+                      value={title} 
+                      onChange={(e) => setTitle(e.target.value)} 
+                      sx={{ 
+                        mt: 1,
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: "#ffffff",
+                          borderRadius: "10px",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+                        },
+                        "& .MuiOutlinedInput-input": {
+                          padding: "12px 14px !important",
+                          lineHeight: "1.5 !important",
+                        },
+                      }}
                     />
                   </Grid>
 
@@ -224,9 +332,24 @@ function CreateContent() {
                   <Grid item xs={12}>
                     <MDTypography variant="button" fontWeight="bold" color="text" ml={1}>핵심 키워드 및 아이디어</MDTypography>
                     <MDInput
-                      fullWidth multiline rows={6}
+                      fullWidth 
+                      multiline 
+                      rows={6}
                       placeholder="AI가 본문에 녹여낼 키워드들을 적어주세요..."
-                      value={inputText} onChange={(e) => setInputText(e.target.value)} sx={{ mt: 1 }}
+                      value={inputText} 
+                      onChange={(e) => setInputText(e.target.value)} 
+                      sx={{ 
+                        mt: 1,
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: "#ffffff",
+                          borderRadius: "10px",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+                        },
+                        "& .MuiOutlinedInput-input": {
+                          padding: "12px 14px !important",
+                          lineHeight: "1.5 !important",
+                        },
+                      }}
                     />
                   </Grid>
                 </Grid>
@@ -235,7 +358,7 @@ function CreateContent() {
                   {/* 인스타 피드 생성 버튼 */}
                   <MDButton 
                     variant="contained" 
-                    disabled={isSpinning} // 로딩 중 클릭 방지
+                    disabled={isSpinning} 
                     onClick={() => handleConvert("INSTA")}
                     sx={{ background: "linear-gradient(135deg, #E1306C, #F77737)", color: "white", px: 4, borderRadius: "12px" }}
                   >
@@ -248,7 +371,7 @@ function CreateContent() {
                   {/* 네이버 블로그 생성 버튼 */}
                   <MDButton 
                     variant="contained" 
-                    disabled={isSpinning} // 로딩 중 클릭 방지
+                    disabled={isSpinning} 
                     onClick={() => handleConvert("BLOG")}
                     sx={{ background: "#1A2035", color: "white", px: 4, borderRadius: "12px" }}
                   >
@@ -261,110 +384,107 @@ function CreateContent() {
               </MDBox>
             </Card>
             
-            
-
             {convertedContent && (
-                <Card sx={{ borderRadius: "24px", border: "none", animation: "fadeIn 0.5s" }}>
-                  <MDBox p={4}>
-                    {/* 1. 최종 제목 입력 섹션 (MDBox 안으로 이동) */}
-                    <MDBox mb={4} pb={2} sx={{ borderBottom: "1px solid #f0f2f5" }}>
-                      <MDTypography variant="caption" fontWeight="bold" color="text" sx={{ textTransform: "uppercase", letterSpacing: "1px", mb: 1, display: "block" }}>
-                        Final Post Title
-                      </MDTypography>
-                      <input 
-                        type="text" 
-                        value={finalTitle} 
-                        onChange={(e) => setFinalTitle(e.target.value)}
-                        className="w-full text-3xl font-extrabold text-gray-800 border-none p-0 focus:ring-0 placeholder-gray-200"
-                        style={{ 
-                          outline: 'none', 
-                          width: '100%', 
-                          fontSize: '2rem', 
-                          fontWeight: '800', 
-                          border: 'none',
-                          backgroundColor: 'transparent'
-                        }}
-                        placeholder="근사한 제목을 확정해주세요..."
-                      />
-                    </MDBox>
-                    <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                      <MDTypography variant="h6">
-                        {isEditing ? "📝 컨텐츠 편집 중" : (selectedType === "INSTA" ? "📱 인스타 피드" : "📝 블로그 포스팅")}
-                      </MDTypography>
-                      <MDBox display="flex" gap={1}>
-                        {/* 수정하기/편집완료 버튼 */}
-                        <MDButton 
-                          variant="outlined" 
-                          color="info" 
-                          size="small" 
-                          startIcon={isEditing ? <CheckCircleIcon /> : <EditIcon />}
-                          onClick={() => setIsEditing(!isEditing)}
-                        >
-                          {isEditing ? "편집 완료" : "수정하기"}
-                        </MDButton>
+              <Card sx={{ borderRadius: "24px", border: "none", mb: 4, boxShadow: "0 8px 32px rgba(0,0,0,0.05)", animation: "fadeIn 0.5s" }}>
+                <MDBox p={4}>
+                  {/* 1. 최종 제목 입력 섹션 (MDBox 안으로 이동) */}
+                  <MDBox mb={4} pb={2} sx={{ borderBottom: "1px solid #f0f2f5" }}>
+                    <MDTypography variant="caption" fontWeight="bold" color="text" sx={{ textTransform: "uppercase", letterSpacing: "1px", mb: 1, display: "block" }}>
+                      Final Post Title
+                    </MDTypography>
+                    <input 
+                      type="text" 
+                      value={finalTitle} 
+                      onChange={(e) => setFinalTitle(e.target.value)}
+                      style={{ 
+                        outline: 'none', 
+                        width: '100%', 
+                        fontSize: '2rem', 
+                        fontWeight: '800', 
+                        border: 'none',
+                        color: '#2d3748',
+                        backgroundColor: 'transparent'
+                      }}
+                      placeholder="근사한 제목을 확정해주세요..."
+                    />
+                  </MDBox>
+                  <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                    <MDTypography variant="h6">
+                      {isEditing ? "📝 컨텐츠 편집 중" : (selectedType === "INSTA" ? "📱 인스타 피드" : "📝 블로그 포스팅")}
+                    </MDTypography>
+                    <MDBox display="flex" gap={1}>
+                      {/* 수정하기/편집완료 버튼 */}
+                      <MDButton 
+                        variant="outlined" 
+                        color="info" 
+                        size="small" 
+                        startIcon={isEditing ? <CheckCircleIcon /> : <EditIcon />}
+                        onClick={() => setIsEditing(!isEditing)}
+                      >
+                        {isEditing ? "편집 완료" : "수정하기"}
+                      </MDButton>
 
-                        {/* 최종 저장 버튼 (수정 중이 아닐 때만 노출하거나 활성화) */}
-                        <MDButton 
-                          variant="gradient" 
-                          color="success" 
-                          size="small" 
-                          startIcon={<SaveIcon />} 
-                          onClick={handleFinalSave} 
-                          disabled={isSaving || isEditing}
-                        >
-                          {isSaving ? "저장 중..." : "최종 저장"}
-                        </MDButton>
+                      {/* 최종 저장 버튼 (수정 중이 아닐 때만 노출하거나 활성화) */}
+                      <MDButton 
+                        variant="gradient" 
+                        color="success" 
+                        size="small" 
+                        startIcon={<SaveIcon />} 
+                        onClick={handleFinalSave} 
+                        disabled={isSaving || isEditing}
+                      >
+                        {isSaving ? "저장 중..." : "최종 저장"}
+                      </MDButton>
 
-                        <MDButton variant="gradient" color="info" size="small" startIcon={<ContentCopyIcon />} onClick={handleCopy}>
-                          복사
-                        </MDButton>
-                        
-                        <IconButton onClick={() => handleConvert(selectedType)} sx={{ animation: isSpinning ? "spin 1s linear infinite" : "none" }}>
-                          <RefreshIcon />
-                        </IconButton>
-                      </MDBox>
-                    </MDBox>
-                    <Divider />
-                    
-                    <MDBox id="content-display-area" mt={3} p={2} sx={{ backgroundColor: "#fcfcfd", borderRadius: "18px", border: "1px solid #eee" }}>
-                      {isEditing ? (
-                        // 편집 모드일 때
-                        selectedType === "BLOG" ? (
-                          <ReactQuill 
-                            theme="snow" 
-                            value={editedContent} 
-                            onChange={setEditedContent} 
-                            modules={quillModules} 
-                            style={{ height: "400px", marginBottom: "50px", backgroundColor: "#fff" }}
-                          />
-                        ) : (
-                          <MDInput 
-                            fullWidth 
-                            multiline 
-                            rows={15} 
-                            value={editedContent} 
-                            onChange={(e) => setEditedContent(e.target.value)} 
-                            sx={{ backgroundColor: "#fff" }}
-                          />
-                        )
-                      ) : (
-                        // 보기 모드일 때
-                        selectedType === "INSTA" ? (
-                          <MDTypography variant="body1" sx={{ color: "#333", whiteSpace: "pre-wrap" }}>
-                            {editedContent}
-                          </MDTypography>
-                        ) : (
-                          <div dangerouslySetInnerHTML={{ __html: editedContent }} style={{ color: "#333" }} />
-                        )
-                      )}
+                      <MDButton variant="gradient" color="info" size="small" startIcon={<ContentCopyIcon />} onClick={handleCopy}>
+                        복사
+                      </MDButton>
+                      
+                      <IconButton onClick={() => handleConvert(selectedType)} sx={{ animation: isSpinning ? "spin 1s linear infinite" : "none" }}>
+                        <RefreshIcon />
+                      </IconButton>
                     </MDBox>
                   </MDBox>
-                </Card>
-              )}
+                  <Divider />
+                  
+                  <MDBox id="content-display-area" mt={3} p={2} sx={{ backgroundColor: "#fcfcfd", borderRadius: "18px", border: "1px solid #eee" }}>
+                    {isEditing ? (
+                      // 편집 모드일 때
+                      selectedType === "BLOG" ? (
+                        <ReactQuill 
+                          theme="snow" 
+                          value={editedContent} 
+                          onChange={setEditedContent} 
+                          modules={quillModules} 
+                          style={{ height: "400px", marginBottom: "50px", backgroundColor: "#fff" }}
+                        />
+                      ) : (
+                        <MDInput 
+                          fullWidth 
+                          multiline 
+                          rows={15} 
+                          value={editedContent} 
+                          onChange={(e) => setEditedContent(e.target.value)} 
+                          sx={{ backgroundColor: "#fff" }}
+                        />
+                      )
+                    ) : (
+                      // 보기 모드일 때
+                      selectedType === "INSTA" ? (
+                        <MDTypography variant="body1" sx={{ color: "#333", whiteSpace: "pre-wrap" }}>
+                          {editedContent}
+                        </MDTypography>
+                      ) : (
+                        <div dangerouslySetInnerHTML={{ __html: editedContent }} style={{ color: "#333" }} />
+                      )
+                    )}
+                  </MDBox>
+                </MDBox>
+              </Card>
+            )}
           </Grid>
         </Grid>
       </MDBox>
-
 
       <ProjectModal 
         open={isModalOpen} 

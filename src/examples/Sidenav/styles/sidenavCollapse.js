@@ -25,10 +25,7 @@ function collapseItem(theme, ownerState) {
     background: active
       ? linearGradient(gradients[sidenavColor].main, gradients[sidenavColor].state)
       : transparent.main,
-    color:
-      (transparentSidenav && !darkMode && !active) || (whiteSidenav && !active)
-        ? dark.main
-        : white.main,
+    color: active ? white.main : "rgba(255, 255, 255, 0.7)",
     display: "flex",
     alignItems: "center",
     width: "100%",
@@ -74,10 +71,7 @@ function collapseIconBox(theme, ownerState) {
   return {
     minWidth: pxToRem(32),
     minHeight: pxToRem(32),
-    color:
-      (transparentSidenav && !darkMode && !active) || (whiteSidenav && !active)
-        ? dark.main
-        : white.main,
+    color: active ? white.main : "rgba(255, 255, 255, 0.7)",
     borderRadius: borderRadius.md,
     display: "grid",
     placeItems: "center",
@@ -92,8 +86,8 @@ function collapseIconBox(theme, ownerState) {
   };
 }
 
-const collapseIcon = ({ palette: { white, gradients } }, { active }) => ({
-  color: active ? white.main : gradients.dark.state,
+const collapseIcon = ({ palette: { white } }, { active }) => ({
+  color: active ? white.main : "rgba(255, 255, 255, 0.6)",
 });
 
 function collapseText(theme, ownerState) {

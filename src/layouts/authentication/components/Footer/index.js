@@ -47,22 +47,17 @@ function Footer({ light }) {
             justifyContent="center"
             alignItems="center"
             flexWrap="wrap"
-            color={light ? "white" : "text"}
+            color={light ? "rgba(255, 255, 255, 0.5)" : "text"}
             fontSize={size.sm}
           >
-            &copy; {new Date().getFullYear()}, made with
-            <MDBox fontSize={size.md} color={light ? "white" : "dark"} mb={-0.5} mx={0.25}>
-              <Icon color="inherit" fontSize="inherit">
-                favorite
-              </Icon>
-            </MDBox>
-            by
-            <Link href="https://www.creative-tim.com/" target="_blank">
-              <MDTypography variant="button" fontWeight="medium" color={light ? "white" : "dark"}>
-                &nbsp;Creative Tim&nbsp;
-              </MDTypography>
-            </Link>
-            for a better web.
+            &copy; {new Date().getFullYear()} CONTENTS MAKER STUDIO. Developed by&nbsp;
+            <MDTypography 
+              variant="button" 
+              fontWeight="bold" 
+              sx={{ color: light ? "#fff" : "dark", cursor: "default" }}
+            >
+              Seo Dong-hyuk
+            </MDTypography>
           </MDBox>
           <MDBox
             component="ul"
@@ -82,46 +77,62 @@ function Footer({ light }) {
             })}
           >
             <MDBox component="li" pr={2} lineHeight={1}>
-              <Link href="https://www.creative-tim.com/" target="_blank">
+              <Link href="#" onClick={(e) => { e.preventDefault(); alert("서비스 소개 준비 중입니다."); }}>
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
-                  color={light ? "white" : "dark"}
+                  sx={{ 
+                    color: light ? "rgba(255, 255, 255, 0.6)" : "dark",
+                    transition: "color 0.2s",
+                    "&:hover": { color: light ? "#38bdf8" : "info" }
+                  }}
                 >
-                  Creative Tim
+                  서비스 소개
                 </MDTypography>
               </Link>
             </MDBox>
             <MDBox component="li" px={2} lineHeight={1}>
-              <Link href="https://www.creative-tim.com/presentation" target="_blank">
+              <Link href="#" onClick={(e) => { e.preventDefault(); alert("이용약관 준비 중입니다."); }}>
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
-                  color={light ? "white" : "dark"}
+                  sx={{ 
+                    color: light ? "rgba(255, 255, 255, 0.6)" : "dark",
+                    transition: "color 0.2s",
+                    "&:hover": { color: light ? "#38bdf8" : "info" }
+                  }}
                 >
-                  About Us
+                  이용 약관
                 </MDTypography>
               </Link>
             </MDBox>
             <MDBox component="li" px={2} lineHeight={1}>
-              <Link href="https://www.creative-tim.com/blog" target="_blank">
+              <Link href="#" onClick={(e) => { e.preventDefault(); alert("개인정보처리방침 준비 중입니다."); }}>
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
-                  color={light ? "white" : "dark"}
+                  sx={{ 
+                    color: light ? "rgba(255, 255, 255, 0.6)" : "dark",
+                    transition: "color 0.2s",
+                    "&:hover": { color: light ? "#38bdf8" : "info" }
+                  }}
                 >
-                  Blog
+                  개인정보처리방침
                 </MDTypography>
               </Link>
             </MDBox>
             <MDBox component="li" pl={2} lineHeight={1}>
-              <Link href="https://www.creative-tim.com/license" target="_blank">
+              <Link href="#" onClick={(e) => { e.preventDefault(); alert("문의 메일: ehdgu98@gmail.com"); }}>
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
-                  color={light ? "white" : "dark"}
+                  sx={{ 
+                    color: light ? "rgba(255, 255, 255, 0.6)" : "dark",
+                    transition: "color 0.2s",
+                    "&:hover": { color: light ? "#38bdf8" : "info" }
+                  }}
                 >
-                  License
+                  문의하기
                 </MDTypography>
               </Link>
             </MDBox>

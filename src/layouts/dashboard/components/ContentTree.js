@@ -43,8 +43,8 @@ function ContentTree({ treeData, onContentClick }) {
   }, [treeData]);
 
   const renderTreeNodes = (node) => {
-    // 1. 프로젝트(폴더) 노드
-    if (node.children && node.children.length > 0) {
+    // 1. 프로젝트(폴더) 노드 (projectId가 존재하거나 children 프로퍼티가 있는 경우)
+    if (node.projectId !== undefined || node.children !== undefined) {
       return (
         <TreeItem
           key={`folder-${node.projectId}`}
@@ -56,7 +56,26 @@ function ContentTree({ treeData, onContentClick }) {
           }
           icon={<FolderIcon sx={{ color: "#e29578", fontSize: "1.25rem !important" }} />}
         >
-          {node.children.map((child) => renderTreeNodes(child))}
+          {node.children && node.children.length > 0 ? (
+            node.children.map((child) => renderTreeNodes(child))
+          ) : (
+            <TreeItem
+              key={`empty-${node.projectId}`}
+              nodeId={`empty-${node.projectId}`}
+              disabled
+              label={
+                <span style={{ fontSize: "0.9rem", fontStyle: "italic", color: "#adb5bd" }}>
+                  등록된 콘텐츠가 없습니다.
+                </span>
+              }
+              sx={{
+                "& .MuiTreeItem-content": {
+                  cursor: "default !important",
+                  pointerEvents: "none"
+                }
+              }}
+            />
+          )}
         </TreeItem>
       );
     }
@@ -126,7 +145,16 @@ function ContentTree({ treeData, onContentClick }) {
   };
 
   return (
-    <Card sx={{ height: "100%", minHeight: "750px", bgcolor: "#f8f9fa" }}>
+    <Card 
+      sx={{ 
+        height: "100%", 
+        minHeight: "750px", 
+        boxShadow: "0 8px 32px rgba(0,0,0,0.05)",
+        borderRadius: "24px",
+        border: "none",
+        bgcolor: "#ffffff"
+      }}
+    >
       <MDBox p={3}>
         <MDTypography variant="h6" fontWeight="bold" gutterBottom>
           컨텐츠 라이브러리

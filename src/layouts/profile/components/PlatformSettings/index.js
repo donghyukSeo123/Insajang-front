@@ -25,9 +25,9 @@ import MDTypography from "components/MDTypography";
 
 function PlatformSettings() {
   const [followsMe, setFollowsMe] = useState(true);
-  const [answersPost, setAnswersPost] = useState(false);
-  const [mentionsMe, setMentionsMe] = useState(true);
-  const [newLaunches, setNewLaunches] = useState(false);
+  const [answersPost, setAnswersPost] = useState(true);
+  const [mentionsMe, setMentionsMe] = useState(false);
+  const [newLaunches, setNewLaunches] = useState(true);
   const [productUpdate, setProductUpdate] = useState(true);
   const [newsletter, setNewsletter] = useState(false);
 
@@ -35,12 +35,12 @@ function PlatformSettings() {
     <Card sx={{ boxShadow: "none" }}>
       <MDBox p={2}>
         <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
-          platform settings
+          알림 및 연동 설정
         </MDTypography>
       </MDBox>
       <MDBox pt={1} pb={2} px={2} lineHeight={1.25}>
         <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-          account
+          발행 및 메일 서비스
         </MDTypography>
         <MDBox display="flex" alignItems="center" mb={0.5} ml={-1.5}>
           <MDBox mt={0.5}>
@@ -48,7 +48,7 @@ function PlatformSettings() {
           </MDBox>
           <MDBox width="80%" ml={0.5}>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              Email me when someone follows me
+              네이버 블로그 API 연동 활성화
             </MDTypography>
           </MDBox>
         </MDBox>
@@ -58,7 +58,7 @@ function PlatformSettings() {
           </MDBox>
           <MDBox width="80%" ml={0.5}>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              Email me when someone answers on my post
+              콘텐츠 예약/발행 완료 시 메일 수신
             </MDTypography>
           </MDBox>
         </MDBox>
@@ -68,14 +68,9 @@ function PlatformSettings() {
           </MDBox>
           <MDBox width="80%" ml={0.5}>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              Email me when someone mentions me
+              주간 블로그 포스팅 성과 리포트 수신
             </MDTypography>
           </MDBox>
-        </MDBox>
-        <MDBox mt={3}>
-          <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-            application
-          </MDTypography>
         </MDBox>
         <MDBox display="flex" alignItems="center" mb={0.5} ml={-1.5}>
           <MDBox mt={0.5}>
@@ -83,9 +78,14 @@ function PlatformSettings() {
           </MDBox>
           <MDBox width="80%" ml={0.5}>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              New launches and projects
+              AI 이미지 자동 우회 매칭 활성화
             </MDTypography>
           </MDBox>
+        </MDBox>
+        <MDBox mt={3}>
+          <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
+            앱 환경 설정
+          </MDTypography>
         </MDBox>
         <MDBox display="flex" alignItems="center" mb={0.5} ml={-1.5}>
           <MDBox mt={0.5}>
@@ -93,7 +93,7 @@ function PlatformSettings() {
           </MDBox>
           <MDBox width="80%" ml={0.5}>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              Monthly product updates
+              콘텐츠 자동 생성 완료 브라우저 알림
             </MDTypography>
           </MDBox>
         </MDBox>
@@ -103,7 +103,7 @@ function PlatformSettings() {
           </MDBox>
           <MDBox width="80%" ml={0.5}>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              Subscribe to newsletter
+              스튜디오 신기능 업데이트 소식 알림
             </MDTypography>
           </MDBox>
         </MDBox>

@@ -86,20 +86,56 @@ const handleDelete = async (projectId, projectName) => {
         <MDTypography variant="h5" fontWeight="bold">프로젝트 관리</MDTypography>
       </DialogTitle>
       <DialogContent>
-        <MDBox display="flex" gap={1} mb={3} mt={1}>
+        <MDBox display="flex" gap={1} mb={3} mt={1} alignItems="center">
           <MDInput 
-            fullWidth label="새 프로젝트 이름" 
+            fullWidth 
+            label="새 프로젝트 이름" 
             value={newProjectName} 
             onChange={(e) => setNewProjectName(e.target.value)} 
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "10px",
+              },
+              "& .MuiOutlinedInput-input": {
+                padding: "12px 14px !important",
+                lineHeight: "1.5 !important",
+                fontSize: "0.95rem !important",
+              },
+              "& .MuiInputLabel-root": {
+                lineHeight: "1.4 !important",
+                transform: "translate(14px, 12px) scale(1)",
+                "&.MuiInputLabel-shrink": {
+                  transform: "translate(14px, -6px) scale(0.75)",
+                },
+              },
+            }}
           />
-          <MDButton variant="gradient" color="info" onClick={handleAdd}>추가</MDButton>
+          <MDButton 
+            variant="gradient" 
+            color="info" 
+            onClick={handleAdd}
+            sx={{ height: "43px", minWidth: "64px", px: 2, borderRadius: "10px" }}
+          >
+            추가
+          </MDButton>
         </MDBox>
         <Divider />
-        <MDBox sx={{ maxHeight: "300px", overflow: "auto", mt: 2 }}>
+        <MDBox sx={{ maxHeight: "300px", overflow: "auto", mt: 2, px: 0.5 }}>
           {projects.map((p) => (
             <MDBox key={p.id} display="flex" justifyContent="space-between" alignItems="center" py={1.5} sx={{ borderBottom: "1px solid #f0f2f5" }}>
-              <MDTypography variant="body2" fontWeight="medium">{p.name}</MDTypography>
-              <IconButton color="error" onClick={() => handleDelete(p.id, p.name)}>
+              <MDTypography 
+                variant="body2" 
+                fontWeight="medium"
+                sx={{ 
+                  lineHeight: "1.6 !important", 
+                  py: 0.2, 
+                  wordBreak: "break-all",
+                  color: "#344767"
+                }}
+              >
+                {p.name}
+              </MDTypography>
+              <IconButton color="error" onClick={() => handleDelete(p.id, p.name)} sx={{ ml: 1 }}>
                 <DeleteIcon fontSize="small" />
               </IconButton>
             </MDBox>
