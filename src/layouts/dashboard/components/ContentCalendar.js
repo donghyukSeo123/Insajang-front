@@ -13,7 +13,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
-function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, onRangeChange}) {
+function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, onRangeChange, onEventDrop }) {
   const calendarRef = useRef(null);
   const [calendarTitle, setCalendarTitle] = useState("");
 
@@ -31,6 +31,16 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
       allDay: info.allDay,
     };
     if (onExternalDrop) onExternalDrop(droppedData);
+  };
+
+  const handleEventDrop = (info) => {
+    const contentId = info.event.extendedProps.contentId;
+    const newDate = info.event.start;
+    if (onEventDrop) {
+      onEventDrop(contentId, newDate);
+    } else {
+      info.revert();
+    }
   };
 
   return (
@@ -167,7 +177,8 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
           locale="ko"
           height="650px"
           events={events}
-          eventStartEditable={false}
+          eventStartEditable={true}
+          eventDrop={handleEventDrop}
           titleFormat={{ year: "numeric", month: "long" }}
           
           datesSet={(arg) => {
@@ -191,7 +202,7 @@ function ContentCalendar({ events, onOpenModal, onEventClick, onExternalDrop, on
   );
 }
 
-ContentCalendar.defaultProps = { events: [], onEventClick: () => {}, onExternalDrop: () => {} };
-ContentCalendar.propTypes = { events: PropTypes.array, onOpenModal: PropTypes.func.isRequired, onEventClick: PropTypes.func, onExternalDrop: PropTypes.func, onRangeChange: PropTypes.func };
+ContentCalendar.defaultProps = { events: [], onEventClick: () => {}, onExternalDrop: () => {}, onEventDrop: () => {} };
+ContentCalendar.propTypes = { events: PropTypes.array, onOpenModal: PropTypes.func.isRequired, onEventClick: PropTypes.func, onExternalDrop: PropTypes.func, onRangeChange: PropTypes.func, onEventDrop: PropTypes.func };
 
 export default ContentCalendar;

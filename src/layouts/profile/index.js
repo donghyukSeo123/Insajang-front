@@ -242,7 +242,23 @@ function Overview() {
                         네이버 블로그 및 인스타그램의 예약 발행 시간이 도달하면 등록된 이메일 계정으로 즉시 발행 알림 메일을 수신합니다.
                       </MDTypography>
                     </MDBox>
-                    <Switch checked={emailOnPublish} onChange={handleNotificationToggle} />
+                    <Switch 
+                      checked={emailOnPublish} 
+                      onChange={handleNotificationToggle} 
+                      sx={{
+                        "& .MuiSwitch-switchBase.Mui-checked": {
+                          color: "#4caf50 !important",
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked .MuiSwitch-thumb": {
+                          borderColor: "#4caf50 !important",
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                          backgroundColor: "#4caf50 !important",
+                          borderColor: "#4caf50 !important",
+                          opacity: "1 !important",
+                        },
+                      }}
+                    />
                   </MDBox>
                 </MDBox>
 

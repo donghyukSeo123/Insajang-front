@@ -173,6 +173,47 @@ function Dashboard() {
     }
   };
 
+  /**
+   * 10. 일정 드래그 앤 드롭 이동 핸들러
+   */
+  const handleEventDrop = async (contentId, newDate) => {
+    try {
+      const formattedDate = dayjs(newDate).format("YYYY-MM-DD HH:mm:ss");
+      const response = await API.post("/api/contents/save-schedule", {
+        contentId: String(contentId),
+        scheduledAt: formattedDate,
+      });
+      if (response.status === 200) {
+        alert("일정이 변경되었습니다.");
+        getTreeStructure(); // 트리 갱신
+        getSchedules();     // 달력 갱신
+      }
+    } catch (error) {
+      console.error("일정 변경 실패:", error);
+      alert("일정 변경에 실패했습니다.");
+      getSchedules();     // 실패 시 화면 원복을 위해 재로드
+    }
+  };
+
+  /**
+   * 11. 일정 등록 취소 핸들러 (달력에서 제거)
+   */
+  const handleCancelSchedule = async (contentId) => {
+    if (!window.confirm("정말로 일정을 취소하시겠습니까?\n(콘텐츠는 삭제되지 않고 대기열로 복원됩니다.)")) return;
+    try {
+      const response = await API.post(`/api/contents/cancel-schedule/${contentId}`);
+      if (response.status === 200) {
+        alert("일정이 취소되었습니다.");
+        setIsDetailModalOpen(false);
+        getTreeStructure(); // 트리 갱신
+        getSchedules();     // 달력 갱신
+      }
+    } catch (error) {
+      console.error("일정 취소 실패:", error);
+      alert("일정 취소 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -184,6 +225,7 @@ function Dashboard() {
               value={selectedDate} 
               onChange={setSelectedDate} 
               onEventClick={handleEventClick}
+              onEventDrop={handleEventDrop}
               onRangeChange={(start, end) => {
                 setCurrentRange({ start, end }); // 범위 기억해두기
                 getSchedules(start, end);       // 호출
@@ -227,6 +269,7 @@ function Dashboard() {
         data={selectedContentData} 
         onUpdate={handleUpdate}
         onDelete={handleDelete}
+        onCancelSchedule={handleCancelSchedule}
       />
       <Footer />
     </DashboardLayout>

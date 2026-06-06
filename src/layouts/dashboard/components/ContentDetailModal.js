@@ -38,7 +38,7 @@ const quillModules = {
   ],
 };
 
-function ContentDetailModal({ open, onClose, data, onUpdate, onDelete }) {
+function ContentDetailModal({ open, onClose, data, onUpdate, onDelete, onCancelSchedule }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedContent, setEditedContent] = useState("");
@@ -78,6 +78,11 @@ function ContentDetailModal({ open, onClose, data, onUpdate, onDelete }) {
             )}
           </MDBox>
           <MDBox display="flex" gap={1}>
+            {data.scheduledAt && (
+              <MDButton variant="outlined" color="warning" size="small" onClick={() => onCancelSchedule(data.contentId)}>
+                일정 취소
+              </MDButton>
+            )}
             <MDButton variant="outlined" color="error" size="small" onClick={() => onDelete(data.contentId)}>
               삭제
             </MDButton>
@@ -176,9 +181,11 @@ ContentDetailModal.propTypes = {
     title: PropTypes.string,
     body: PropTypes.string,
     content: PropTypes.string,
+    scheduledAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
   }),
   onUpdate: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onCancelSchedule: PropTypes.func.isRequired,
 };
 
 export default ContentDetailModal;
