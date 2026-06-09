@@ -2,7 +2,7 @@ import axios from "axios";
 
 /** @type {import('axios').AxiosInstance} */
 const API = axios.create({
-  baseURL: "http://localhost:8080", 
+  baseURL: process.env.NODE_ENV === "production" ? "" : "http://localhost:8080", 
   timeout: 5000,
 });
 
@@ -85,7 +85,8 @@ API.interceptors.response.use(
         const refreshToken = rawRefreshToken.replace(/^"|"$/g, '');
 
         // 💡 중요: 순수 axios 객체로 재발급 요청을 전송하여 헤더 중첩 및 무한 루프 차단
-        const res = await axios.post("http://localhost:8080/api/user/reissue", {
+        const reissueUrl = process.env.NODE_ENV === "production" ? "/api/user/reissue" : "http://localhost:8080/api/user/reissue";
+        const res = await axios.post(reissueUrl, {
           refreshToken: refreshToken,
         });
 
