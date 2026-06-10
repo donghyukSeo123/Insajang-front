@@ -7,6 +7,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
+import { copyText } from "utils/clipboard";
 
 // 에디터 라이브러리 및 CSS
 import ReactQuill from "react-quill";
@@ -159,8 +160,14 @@ function ContentDetailModal({ open, onClose, data, onUpdate, onDelete, onCancelS
             <>
               <MDButton variant="outlined" color="info" onClick={() => {
                 const text = editedContent;
-                navigator.clipboard.writeText(text);
-                alert("복사되었습니다.");
+                copyText(text)
+                  .then(() => {
+                    alert("복사되었습니다.");
+                  })
+                  .catch((err) => {
+                    console.error("복사 실패:", err);
+                    alert("복사 중 오류가 발생했습니다. 직접 텍스트를 복사해 주세요.");
+                  });
               }}>HTML 복사</MDButton>
               <MDButton variant="gradient" color="info" onClick={() => setIsEditing(true)}>수정하기</MDButton>
               <MDButton variant="gradient" color="dark" onClick={onClose}>닫기</MDButton>

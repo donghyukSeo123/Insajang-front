@@ -24,6 +24,7 @@ import Footer from "examples/Footer";
 import ProjectModal from "./ProjectModal";
  // API 유틸리티
 import API from "utils/api";
+import { copyText } from "utils/clipboard";
 
 // Quill 에디터 툴바 설정
 const quillModules = {
@@ -137,7 +138,11 @@ function CreateContent() {
       setConvertedContent(response.data.generated_text);
       setFinalTitle(response.data.generated_title);
     } catch (error) {
-      alert("서버 통신 실패! 파이썬 서버가 켜져 있는지 확인하세요.");
+      if (error.response?.status === 429) {
+        alert(error.response.data?.message || "AI 콘텐츠 생성 일일 할당량(20회)을 초과했습니다. 잠시 후 다시 시도해 주세요.");
+      } else {
+        alert("AI 콘텐츠 생성 중 오류가 발생했습니다. 현재 서비스 연결이 원활하지 않으니, 잠시 후 다시 시도해 주세요.");
+      }
     } finally {
       setIsSpinning(false);
     }
@@ -186,8 +191,14 @@ function CreateContent() {
       alert("네이버 블로그 서식 복사 완료!");
       selection.removeAllRanges();
     } else {
-      navigator.clipboard.writeText(el.innerText);
-      alert("인스타그램 문구 복사 완료!");
+      copyText(el.innerText)
+        .then(() => {
+          alert("인스타그램 문구 복사 완료!");
+        })
+        .catch((err) => {
+          console.error("복사 실패:", err);
+          alert("복사 중 오류가 발생했습니다. 직접 텍스트를 드래그해서 복사해 주세요.");
+        });
     }
   };
 
