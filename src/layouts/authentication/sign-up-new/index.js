@@ -259,14 +259,28 @@ function Cover() {
       "&.Mui-focused fieldset": {
         borderColor: "#38bdf8",
       },
-      "&.Mui-disabled fieldset": {
-        borderColor: "rgba(255, 255, 255, 0.08)",
+      "&.Mui-disabled": {
+        backgroundColor: "rgba(255, 255, 255, 0.05) !important",
+        "& fieldset": {
+          borderColor: "rgba(255, 255, 255, 0.08) !important",
+        },
+        "& .MuiOutlinedInput-input": {
+          "-webkit-text-fill-color": "rgba(255, 255, 255, 0.4) !important",
+        },
       },
     },
     "& .MuiOutlinedInput-input": {
       padding: "12px 14px !important",
       lineHeight: "1.5 !important",
       fontSize: "0.95rem !important",
+      "&:-webkit-autofill": {
+        "-webkit-box-shadow": "0 0 0 100px #0f172a inset !important",
+        "-webkit-text-fill-color": "#fff !important",
+        "&:disabled": {
+          "-webkit-box-shadow": "0 0 0 100px #0f172a inset !important",
+          "-webkit-text-fill-color": "rgba(255, 255, 255, 0.4) !important",
+        },
+      },
     },
     "& .MuiInputLabel-root": {
       color: "rgba(255, 255, 255, 0.5)",
