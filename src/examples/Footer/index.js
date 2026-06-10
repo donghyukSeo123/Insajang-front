@@ -91,11 +91,7 @@ function Footer({ company, links }) {
 // [💡 수정] 포트폴리오 및 실제 서비스에 맞게 Default Props 수정
 Footer.defaultProps = {
   company: { href: "#", name: "컨텐츠메이커스튜디오" },
-  links: [
-    { href: "#", name: "이용약관" },
-    { href: "#", name: "개인정보처리방침" },
-    { href: "#", name: "고객센터" },
-  ],
+  links: [],
 };
 
 Footer.propTypes = {

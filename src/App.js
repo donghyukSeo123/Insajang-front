@@ -73,20 +73,25 @@ export default function App() {
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // 1. 토큰 존재 여부를 판별하는 안전한 유틸 함수
+  const checkToken = () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return false;
+    // JSON.stringify 형태로 저장되는 경우가 있어 문자열화된 값들도 예외처리합니다.
+    const cleanToken = token.replace(/^"|"$/g, '').trim();
+    if (cleanToken === "" || cleanToken === "null" || cleanToken === "undefined") {
+      return false;
+    }
+    return true;
+  };
 
+  // 2. 초기 렌더링 시점에 동기적으로 토큰을 체크하여 튕김/더블 리다이렉션을 방지합니다.
+  const [isAuthenticated, setIsAuthenticated] = useState(() => checkToken());
+
+  // 3. 페이지 이동 시마다 토큰을 재검증하여 실시간으로 인증 여부를 동기화합니다.
   useEffect(() => {
-  // 1. 이제 'user' 대신 진짜 입장권인 'accessToken'이 있는지 확인합니다.
-  const token = localStorage.getItem("accessToken");
-  
-  if (token) {
-    // 토큰이 있다면 "오케이, 통과!"
-    setIsAuthenticated(true);
-  } else {
-    // 토큰이 없다면 "안돼, 돌아가!"
-    setIsAuthenticated(false);
-  }
-}, []); // 앱이 처음 켜질 때 딱 한 번 실행
+    setIsAuthenticated(checkToken());
+  }, [pathname]);
 
   // Cache for the rtl
   useMemo(() => {

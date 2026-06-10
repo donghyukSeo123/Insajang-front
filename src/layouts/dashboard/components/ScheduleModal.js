@@ -145,6 +145,27 @@ function ScheduleModal({ open, onClose, selectedDate, droppedContent, onSave }) 
             </ToggleButtonGroup>
           </MDBox>
 
+          {/* 💡 예약 메일 전송 안내 추가 */}
+          <MDTypography 
+            variant="caption" 
+            color="info" 
+            sx={{ 
+              mt: -0.5, 
+              fontWeight: "medium", 
+              fontSize: "0.82rem",
+              lineHeight: 1.4,
+              backgroundColor: "rgba(3, 169, 244, 0.08)",
+              p: 1.5,
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 1
+            }}
+          >
+            <span style={{ fontSize: "1rem", marginTop: "-1px" }}>✉️</span> 
+            설정하신 예약 시간이 되면 가입(로그인)하신 이메일 계정으로 콘텐츠 발행 완료 알림 메일이 자동으로 발송됩니다.
+          </MDTypography>
+
           {/* 하단 버튼 영역 */}
           <MDBox mt={1} display="flex" justifyContent="flex-end">
             <MDButton variant="text" color="secondary" onClick={onClose} sx={{ mr: 1 }}>

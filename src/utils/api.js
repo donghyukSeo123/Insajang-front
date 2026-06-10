@@ -49,8 +49,13 @@ API.interceptors.response.use(
     // 에러 응답이 왔고, 401 Unauthorized 이며, 아직 재시도하지 않은 요청인 경우
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       
+      // 💡 로그인 요청(/api/user/login)에서 발생한 401 에러는 토큰 만료가 아닌 비밀번호/아이디 틀림이므로 재발급을 시도하지 않고 즉시 거절합니다.
+      if (originalRequest.url && originalRequest.url.includes("/api/user/login")) {
+        return Promise.reject(error);
+      }
+
       // 토큰 재발급 요청 자체가 401 에러를 낸 경우는 리프레시 토큰마저 만료된 상태이므로 강제 로그아웃
-      if (originalRequest.url === "/api/user/reissue") {
+      if (originalRequest.url && originalRequest.url.includes("/api/user/reissue")) {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("userName");

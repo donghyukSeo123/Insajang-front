@@ -91,36 +91,6 @@ function Footer({ light }) {
                 </MDTypography>
               </Link>
             </MDBox>
-            <MDBox component="li" px={2} lineHeight={1}>
-              <Link href="#" onClick={(e) => { e.preventDefault(); alert("이용약관 준비 중입니다."); }}>
-                <MDTypography
-                  variant="button"
-                  fontWeight="regular"
-                  sx={{ 
-                    color: light ? "rgba(255, 255, 255, 0.6)" : "dark",
-                    transition: "color 0.2s",
-                    "&:hover": { color: light ? "#38bdf8" : "info" }
-                  }}
-                >
-                  이용 약관
-                </MDTypography>
-              </Link>
-            </MDBox>
-            <MDBox component="li" px={2} lineHeight={1}>
-              <Link href="#" onClick={(e) => { e.preventDefault(); alert("개인정보처리방침 준비 중입니다."); }}>
-                <MDTypography
-                  variant="button"
-                  fontWeight="regular"
-                  sx={{ 
-                    color: light ? "rgba(255, 255, 255, 0.6)" : "dark",
-                    transition: "color 0.2s",
-                    "&:hover": { color: light ? "#38bdf8" : "info" }
-                  }}
-                >
-                  개인정보처리방침
-                </MDTypography>
-              </Link>
-            </MDBox>
             <MDBox component="li" pl={2} lineHeight={1}>
               <Link href="#" onClick={(e) => { e.preventDefault(); alert("문의 메일: ehdgu98@gmail.com"); }}>
                 <MDTypography
