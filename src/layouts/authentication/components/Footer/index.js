@@ -76,6 +76,7 @@ function Footer({ light }) {
               },
             })}
           >
+            {/*
             <MDBox component="li" pr={2} lineHeight={1}>
               <Link href="#" onClick={(e) => { e.preventDefault(); alert("서비스 소개 준비 중입니다."); }}>
                 <MDTypography
@@ -106,6 +107,7 @@ function Footer({ light }) {
                 </MDTypography>
               </Link>
             </MDBox>
+            */}
           </MDBox>
         </MDBox>
       </Container>
